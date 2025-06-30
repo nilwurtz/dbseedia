@@ -68,7 +68,7 @@ export interface DatabaseExecutor {
   execute(
     tableName: string,
     data: TransformedData,
-    strategy: LoadStrategy
+    strategy: LoadStrategy,
   ): Promise<void>;
   truncateTable(tableName: string): Promise<void>;
 }

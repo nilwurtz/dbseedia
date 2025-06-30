@@ -1,5 +1,8 @@
 export abstract class DbSeediaError extends Error {
-  constructor(message: string, public cause?: Error) {
+  constructor(
+    message: string,
+    public cause?: Error,
+  ) {
     super(message);
     this.name = this.constructor.name;
     if (cause) {

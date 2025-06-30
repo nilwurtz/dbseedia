@@ -41,7 +41,7 @@ export class DbSeedia {
     for (const conn of connections) {
       if (!conn.host || !conn.database || !conn.username) {
         throw new ValidationError(
-          "Host, database, and username are required for connection"
+          "Host, database, and username are required for connection",
         );
       }
     }
@@ -69,14 +69,14 @@ export class DbSeedia {
 
   async connect(): Promise<void> {
     const connectionPromises = Array.from(this.executors.values()).map(
-      (executor) => executor.connect()
+      (executor) => executor.connect(),
     );
     await Promise.all(connectionPromises);
   }
 
   async disconnect(): Promise<void> {
     const disconnectionPromises = Array.from(this.executors.values()).map(
-      (executor) => executor.disconnect()
+      (executor) => executor.disconnect(),
     );
     await Promise.all(disconnectionPromises);
   }
@@ -95,7 +95,7 @@ export class DbSeedia {
     } catch (error) {
       throw new FileParseError(
         `Failed to load data from directory: ${directory}`,
-        error as Error
+        error as Error,
       );
     }
   }
@@ -106,7 +106,7 @@ export class DbSeedia {
 
     if (!executor) {
       throw new ValidationError(
-        `Database executor '${executorName}' not found`
+        `Database executor '${executorName}' not found`,
       );
     }
 
@@ -132,7 +132,7 @@ export class DbSeedia {
     } catch (error) {
       throw new FileParseError(
         `Failed to discover tables in directory: ${directory}`,
-        error as Error
+        error as Error,
       );
     }
   }
@@ -141,7 +141,7 @@ export class DbSeedia {
     directory: string,
     tableName: string,
     executor: DatabaseExecutor,
-    strategy: LoadStrategy
+    strategy: LoadStrategy,
   ): Promise<void> {
     const csvFile = join(directory, `${tableName}.csv`);
     const tsvFile = join(directory, `${tableName}.tsv`);
@@ -182,7 +182,7 @@ export class DbSeedia {
 
     const transformedData = await this.dataTransformer.transform(
       parsedData,
-      schema
+      schema,
     );
     await executor.execute(tableName, transformedData, strategy);
   }

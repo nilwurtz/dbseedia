@@ -21,9 +21,9 @@ export class PostgresTestContainer {
         await import("testcontainers").then(({ Wait }) =>
           Wait.forLogMessage(
             "database system is ready to accept connections",
-            2
-          )
-        )
+            2,
+          ),
+        ),
       )
       .start();
 
@@ -69,7 +69,7 @@ export class PostgresTestContainer {
 
   async createTable(
     tableName: string,
-    columns: Array<{ name: string; type: string }>
+    columns: Array<{ name: string; type: string }>,
   ): Promise<void> {
     const columnDefs = columns
       .map((col) => `${col.name} ${col.type}`)
@@ -124,7 +124,7 @@ export class PostgresTestContainer {
     }
 
     const copyCommand = `\\copy ${tableName} FROM '${csvPath}' DELIMITER ',' CSV HEADER`;
-    
+
     await this.container.exec([
       "psql",
       "-U",
@@ -142,7 +142,7 @@ export class PostgresTestContainer {
     }
 
     const copyCommand = `\\copy ${tableName} FROM '${tsvPath}' DELIMITER E'\\t' CSV HEADER`;
-    
+
     await this.container.exec([
       "psql",
       "-U",
