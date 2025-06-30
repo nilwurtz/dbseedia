@@ -5,7 +5,7 @@ describe("基本ロード機能", () => {
   const getContext = setupE2EHooks();
 
   it("フィクスチャディレクトリからデータをロードできること", async () => {
-    await getContext().dbSeedia.loadFrom("./e2e/fixtures");
+    await getContext().dbSeedia.loadFrom("./e2e/scenarios/basic-loading/fixtures");
 
     const userRows = await getContext().testContainer.executeQuery("SELECT * FROM users");
     expect(userRows.length).toBe(3);
@@ -18,7 +18,7 @@ describe("基本ロード機能", () => {
   });
 
   it("指定したテーブルのみをロードできること", async () => {
-    await getContext().dbSeedia.loadFrom("./e2e/fixtures", {
+    await getContext().dbSeedia.loadFrom("./e2e/scenarios/basic-loading/fixtures", {
       tables: ["users"],
     });
 

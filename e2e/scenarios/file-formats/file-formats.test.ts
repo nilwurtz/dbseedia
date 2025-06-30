@@ -5,7 +5,7 @@ describe("ファイル形式機能", () => {
   const getContext = setupE2EHooks();
 
   it("CSVとTSVファイルを正しくロードできること", async () => {
-    await getContext().dbSeedia.loadFrom("./e2e/fixtures");
+    await getContext().dbSeedia.loadFrom("./e2e/scenarios/file-formats/fixtures");
 
     const users = await getContext().testContainer.executeQuery("SELECT name, email FROM users WHERE id = 1");
     expect(users[0]).toContain("John Doe");
