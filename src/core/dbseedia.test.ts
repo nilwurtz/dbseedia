@@ -3,7 +3,7 @@ import { DbSeedia } from "./dbseedia.js";
 import { ValidationError } from "../errors/index.js";
 import type { DbSeediaConfig, ConnectionConfig } from "../interfaces/index.js";
 
-describe("DbSeedia", () => {
+describe("DbSeedieコアクラス", () => {
   let dbSeedia: DbSeedia;
   let config: DbSeediaConfig;
 
@@ -21,12 +21,12 @@ describe("DbSeedia", () => {
     };
   });
 
-  describe("constructor", () => {
-    it("should create instance with valid config", () => {
+  describe("コンストラクタ", () => {
+    it("有効な設定でインスタンスを作成できること", () => {
       expect(() => new DbSeedia(config)).not.toThrow();
     });
 
-    it("should throw ValidationError when connection is missing", () => {
+    it("接続設定がない場合にValidationErrorが投げられること", () => {
       const invalidConfig = {} as DbSeediaConfig;
 
       expect(() => new DbSeedia(invalidConfig)).toThrow(ValidationError);
@@ -35,7 +35,7 @@ describe("DbSeedia", () => {
       );
     });
 
-    it("should throw ValidationError when required connection fields are missing", () => {
+    it("必須接続フィールドがない場合にValidationErrorが投げられること", () => {
       const invalidConfig = {
         connection: {
           host: "localhost",
@@ -49,14 +49,14 @@ describe("DbSeedia", () => {
       );
     });
 
-    it("should apply default values to config", () => {
+    it("設定にデフォルト値を適用できること", () => {
       const dbseedia = new DbSeedia(config);
 
       // We can't directly access the private config, but we can test behavior
       expect(dbseedia).toBeDefined();
     });
 
-    it("should handle multiple connections", () => {
+    it("複数接続を処理できること", () => {
       const multiConfig = {
         connection: [
           {
@@ -78,24 +78,24 @@ describe("DbSeedia", () => {
     });
   });
 
-  describe("basic functionality", () => {
+  describe("基本機能", () => {
     beforeEach(() => {
       dbSeedia = new DbSeedia(config);
     });
 
-    it("should have connect method", () => {
+    it("connectメソッドが存在すること", () => {
       expect(typeof dbSeedia.connect).toBe("function");
     });
 
-    it("should have disconnect method", () => {
+    it("disconnectメソッドが存在すること", () => {
       expect(typeof dbSeedia.disconnect).toBe("function");
     });
 
-    it("should have loadFrom method", () => {
+    it("loadFromメソッドが存在すること", () => {
       expect(typeof dbSeedia.loadFrom).toBe("function");
     });
 
-    it("should throw ValidationError for invalid target", async () => {
+    it("無効なターゲットでValidationErrorが投げられること", async () => {
       await expect(
         dbSeedia.loadFrom("/test/fixtures", { target: "nonexistent" }),
       ).rejects.toThrow(ValidationError);
@@ -105,19 +105,19 @@ describe("DbSeedia", () => {
     });
   });
 
-  describe("fluent interface methods", () => {
+  describe("フルエントインターフェース", () => {
     beforeEach(() => {
       dbSeedia = new DbSeedia(config);
     });
 
-    it("should create new instance with different strategy", () => {
+    it("異なる戦略で新インスタンスを作成できること", () => {
       const newInstance = dbSeedia.withStrategy("delete");
 
       expect(newInstance).not.toBe(dbSeedia);
       expect(newInstance).toBeInstanceOf(DbSeedia);
     });
 
-    it("should create new instance with different options", () => {
+    it("異なるオプションで新インスタンスを作成できること", () => {
       const newInstance = dbSeedia.withOptions({
         batchSize: 5000,
         nullValue: "NULL",
@@ -127,14 +127,14 @@ describe("DbSeedia", () => {
       expect(newInstance).toBeInstanceOf(DbSeedia);
     });
 
-    it("should create new instance with different tables", () => {
+    it("異なるテーブルで新インスタンスを作成できること", () => {
       const newInstance = dbSeedia.withTables(["users", "posts"]);
 
       expect(newInstance).not.toBe(dbSeedia);
       expect(newInstance).toBeInstanceOf(DbSeedia);
     });
 
-    it("should create new instance with different connection", () => {
+    it("異なる接続で新インスタンスを作成できること", () => {
       const newConnection = {
         host: "new-host",
         database: "new_db",

@@ -3,14 +3,14 @@ import { DefaultDataTransformer } from "./data-transformer.js";
 import { DataTransformError } from "../errors/index.js";
 import type { ParsedData, TableSchema } from "../interfaces/index.js";
 
-describe("DefaultDataTransformer", () => {
+describe("デフォルトデータ変換", () => {
   let transformer: DefaultDataTransformer;
 
   beforeEach(() => {
     transformer = new DefaultDataTransformer();
   });
 
-  describe("transform", () => {
+  describe("データ変換", () => {
     const basicSchema: TableSchema = {
       name: "users",
       columns: [
@@ -20,7 +20,7 @@ describe("DefaultDataTransformer", () => {
       ],
     };
 
-    it("should transform parsed data with headers", async () => {
+    it("ヘッダー付きデータを変換できること", async () => {
       const parsedData: ParsedData = {
         headers: ["id", "name", "email"],
         rows: [
@@ -38,7 +38,7 @@ describe("DefaultDataTransformer", () => {
       ]);
     });
 
-    it("should transform parsed data without headers using schema", async () => {
+    it("スキーマを使用してヘッダーなしデータを変換できること", async () => {
       const parsedData: ParsedData = {
         headers: [],
         rows: [
@@ -56,7 +56,7 @@ describe("DefaultDataTransformer", () => {
       ]);
     });
 
-    it("should handle null values correctly with default null value", async () => {
+    it("デフォルトnull値でnull値を正しく処理できること", async () => {
       const parsedData: ParsedData = {
         headers: ["id", "name", "email"],
         rows: [
@@ -73,7 +73,7 @@ describe("DefaultDataTransformer", () => {
       ]);
     });
 
-    it("should handle null values correctly with custom null value", async () => {
+    it("カスタムnull値でnull値を正しく処理できること", async () => {
       const customTransformer = new DefaultDataTransformer("NULL");
       const parsedData: ParsedData = {
         headers: ["id", "name", "email"],
@@ -91,7 +91,7 @@ describe("DefaultDataTransformer", () => {
       ]);
     });
 
-    it("should handle empty data", async () => {
+    it("空データを処理できること", async () => {
       const parsedData: ParsedData = {
         headers: ["id", "name", "email"],
         rows: [],
@@ -103,7 +103,7 @@ describe("DefaultDataTransformer", () => {
       expect(result.values).toEqual([]);
     });
 
-    it("should handle completely empty data", async () => {
+    it("完全に空のデータを処理できること", async () => {
       const parsedData: ParsedData = {
         headers: [],
         rows: [],
@@ -115,7 +115,7 @@ describe("DefaultDataTransformer", () => {
       expect(result.values).toEqual([]);
     });
 
-    it("should throw DataTransformError when headers missing but rows exist", async () => {
+    it("ヘッダーがないのにデータ行が存在する場合にDataTransformErrorが投げられること", async () => {
       const parsedData: ParsedData = {
         headers: [],
         rows: [["1", "John", "john@example.com"]],
@@ -134,7 +134,7 @@ describe("DefaultDataTransformer", () => {
       ).rejects.toThrow("Failed to transform data for table: users");
     });
 
-    it("should preserve original values when not matching null value", async () => {
+    it("null値でない値を元の形で保持できること", async () => {
       const customTransformer = new DefaultDataTransformer("NULL");
       const parsedData: ParsedData = {
         headers: ["id", "name", "note"],
@@ -154,7 +154,7 @@ describe("DefaultDataTransformer", () => {
       ]);
     });
 
-    it("should handle data with different column counts", async () => {
+    it("異なる列数のデータを処理できること", async () => {
       const parsedData: ParsedData = {
         headers: ["id", "name"],
         rows: [

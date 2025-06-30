@@ -4,7 +4,7 @@ import { join } from "path";
 import { CsvFileRepository } from "./file.js";
 import { FileParseError } from "../errors/index.js";
 
-describe("CsvFileRepository", () => {
+describe("CSVファイルリポジトリ", () => {
   let fileRepository: CsvFileRepository;
   let tempDir: string;
 
@@ -18,8 +18,8 @@ describe("CsvFileRepository", () => {
     await rm(tempDir, { recursive: true, force: true });
   });
 
-  describe("readCsv", () => {
-    it("should read CSV file with headers", async () => {
+  describe("CSV読み込み", () => {
+    it("ヘッダー付きCSVファイルの読み込みができること", async () => {
       const csvContent =
         "name,age,email\nJohn,25,john@example.com\nJane,30,jane@example.com";
       const csvPath = join(tempDir, "users.csv");
@@ -34,7 +34,7 @@ describe("CsvFileRepository", () => {
       ]);
     });
 
-    it("should read CSV file without headers", async () => {
+    it("ヘッダーなしCSVファイルの読み込みができること", async () => {
       const csvContent = "John,25,john@example.com\nJane,30,jane@example.com";
       const csvPath = join(tempDir, "users.csv");
       await writeFile(csvPath, csvContent);
@@ -48,7 +48,7 @@ describe("CsvFileRepository", () => {
       ]);
     });
 
-    it("should handle TSV files with custom separator", async () => {
+    it("カスタム区切り文字でTSVファイルを処理できること", async () => {
       const tsvContent = "name\tage\temail\nJohn\t25\tjohn@example.com";
       const tsvPath = join(tempDir, "users.tsv");
       await writeFile(tsvPath, tsvContent);
@@ -62,7 +62,7 @@ describe("CsvFileRepository", () => {
       expect(result.rows).toEqual([["John", "25", "john@example.com"]]);
     });
 
-    it("should handle empty files", async () => {
+    it("空ファイルを適切に処理できること", async () => {
       const csvPath = join(tempDir, "empty.csv");
       await writeFile(csvPath, "");
 
@@ -72,7 +72,7 @@ describe("CsvFileRepository", () => {
       expect(result.rows).toEqual([]);
     });
 
-    it("should throw FileParseError for non-existent files", async () => {
+    it("存在しないCSVファイルでFileParseErrorが投げられること", async () => {
       const nonExistentPath = join(tempDir, "non-existent.csv");
 
       await expect(fileRepository.readCsv(nonExistentPath)).rejects.toThrow(
@@ -80,7 +80,7 @@ describe("CsvFileRepository", () => {
       );
     });
 
-    it("should trim whitespace from headers and values", async () => {
+    it("ヘッダーと値の空白文字をトリミングできること", async () => {
       const csvContent = " name , age , email \n John , 25 , john@example.com ";
       const csvPath = join(tempDir, "users.csv");
       await writeFile(csvPath, csvContent);
@@ -92,8 +92,8 @@ describe("CsvFileRepository", () => {
     });
   });
 
-  describe("readTableOrdering", () => {
-    it("should read table ordering file", async () => {
+  describe("テーブル順序読み込み", () => {
+    it("テーブル順序ファイルを読み込めること", async () => {
       const orderingContent = "users\nposts\ncomments";
       const orderingPath = join(tempDir, "table-ordering.txt");
       await writeFile(orderingPath, orderingContent);
@@ -103,7 +103,7 @@ describe("CsvFileRepository", () => {
       expect(result).toEqual(["users", "posts", "comments"]);
     });
 
-    it("should ignore empty lines and comments", async () => {
+    it("空行とコメントを無視できること", async () => {
       const orderingContent =
         "users\n\n# This is a comment\nposts\n\ncomments\n# Another comment";
       const orderingPath = join(tempDir, "table-ordering.txt");
@@ -114,7 +114,7 @@ describe("CsvFileRepository", () => {
       expect(result).toEqual(["users", "posts", "comments"]);
     });
 
-    it("should throw FileParseError for non-existent files", async () => {
+    it("存在しない順序ファイルでFileParseErrorが投げられること", async () => {
       const nonExistentPath = join(tempDir, "non-existent.txt");
 
       await expect(
@@ -122,7 +122,7 @@ describe("CsvFileRepository", () => {
       ).rejects.toThrow(FileParseError);
     });
 
-    it("should handle empty ordering file", async () => {
+    it("空の順序ファイルを処理できること", async () => {
       const orderingPath = join(tempDir, "empty-ordering.txt");
       await writeFile(orderingPath, "");
 

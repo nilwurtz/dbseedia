@@ -1,10 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { setupE2EHooks } from "../../execution-hooks.js";
 
-describe("File Format Scenarios", () => {
+describe("ファイル形式機能", () => {
   const getContext = setupE2EHooks();
 
-  it("should load CSV and TSV files correctly", async () => {
+  it("CSVとTSVファイルを正しくロードできること", async () => {
     await getContext().dbSeedia.loadFrom("./e2e/fixtures");
 
     const users = await getContext().testContainer.executeQuery(
@@ -20,7 +20,7 @@ describe("File Format Scenarios", () => {
     expect(posts[0]).toContain("This is the first post");
   });
 
-  it("should handle empty files gracefully", async () => {
+  it("存在しないファイルを適切にエラー処理できること", async () => {
     await expect(async () => {
       await getContext().dbSeedia.loadFrom("./e2e/nonexistent");
     }).rejects.toThrow();

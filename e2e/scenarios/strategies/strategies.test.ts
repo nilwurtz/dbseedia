@@ -1,10 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { setupE2EHooks } from "../../execution-hooks.js";
 
-describe("Loading Strategy Scenarios", () => {
+describe("ロード戦略機能", () => {
   const getContext = setupE2EHooks();
 
-  it("should handle truncate strategy", async () => {
+  it("truncate戦略を処理できること", async () => {
     await getContext().dbSeedia.loadFrom("./e2e/fixtures");
 
     let userCount = await getContext().testContainer.executeQuery(
@@ -23,7 +23,7 @@ describe("Loading Strategy Scenarios", () => {
     expect(parseInt(userCount[0])).toBe(3);
   });
 
-  it("should support fluent interface", async () => {
+  it("フルエントインターフェースをサポートできること", async () => {
     const fluentDbSeedia = getContext()
       .dbSeedia.withStrategy("truncate")
       .withOptions({

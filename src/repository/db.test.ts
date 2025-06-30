@@ -17,7 +17,7 @@ vi.mock("postgres", () => {
   };
 });
 
-describe("PostgresDbRepository", () => {
+describe("PostgreSQLデータベースリポジトリ", () => {
   let dbRepository: PostgresDbRepository;
   let config: ConnectionConfig;
   let mockSql: any;
@@ -47,8 +47,8 @@ describe("PostgresDbRepository", () => {
     dbRepository = new PostgresDbRepository(config);
   });
 
-  describe("connect", () => {
-    it("should connect successfully", async () => {
+  describe("接続", () => {
+    it("正常に接続できること", async () => {
       mockSql.unsafe.mockImplementation((query: string) => {
         if (query === "SELECT 1") {
           return Promise.resolve([{ "?column?": 1 }]);
@@ -68,7 +68,7 @@ describe("PostgresDbRepository", () => {
       expect(mockSql.unsafe).toHaveBeenCalledWith("SELECT 1");
     });
 
-    it("should throw ConnectionError when connection fails", async () => {
+    it("接続失敗時にConnectionErrorが投げられること", async () => {
       mockSql.unsafe.mockRejectedValue(new Error("Connection failed"));
 
       await expect(dbRepository.connect()).rejects.toThrow(ConnectionError);
@@ -77,7 +77,7 @@ describe("PostgresDbRepository", () => {
       );
     });
 
-    it("should use default port when not specified", async () => {
+    it("ポートが指定されていない場合にデフォルトポートを使用すること", async () => {
       const configWithoutPort = { ...config };
       delete configWithoutPort.port;
       dbRepository = new PostgresDbRepository(configWithoutPort);
@@ -94,8 +94,8 @@ describe("PostgresDbRepository", () => {
     });
   });
 
-  describe("disconnect", () => {
-    it("should disconnect successfully", async () => {
+  describe("切断", () => {
+    it("正常に切断できること", async () => {
       mockSql.unsafe.mockResolvedValue([{ "?column?": 1 }]);
       await dbRepository.connect();
 
@@ -104,14 +104,14 @@ describe("PostgresDbRepository", () => {
       expect(mockSql.end).toHaveBeenCalled();
     });
 
-    it("should handle disconnect when not connected", async () => {
+    it("未接続状態での切断を適切に処理できること", async () => {
       await dbRepository.disconnect();
 
       expect(mockSql.end).not.toHaveBeenCalled();
     });
   });
 
-  describe("execute", () => {
+  describe("実行", () => {
     const testData: TransformedData = {
       columns: ["name", "age"],
       values: [
@@ -125,7 +125,7 @@ describe("PostgresDbRepository", () => {
       await dbRepository.connect();
     });
 
-    it("should execute truncate strategy successfully", async () => {
+    it("truncate戦略で正常に実行できること", async () => {
       mockSql.begin.mockImplementation(async (callback) => {
         return await callback(mockSql);
       });
@@ -141,7 +141,7 @@ describe("PostgresDbRepository", () => {
       );
     });
 
-    it("should handle empty data", async () => {
+    it("空データを適切に処理できること", async () => {
       const emptyData: TransformedData = {
         columns: ["name", "age"],
         values: [],
@@ -162,7 +162,7 @@ describe("PostgresDbRepository", () => {
       );
     });
 
-    it("should throw DatabaseError when not connected", async () => {
+    it("未接続状態での実行時にDatabaseErrorが投げられること", async () => {
       await dbRepository.disconnect();
 
       await expect(
@@ -173,7 +173,7 @@ describe("PostgresDbRepository", () => {
       ).rejects.toThrow("Database connection not established");
     });
 
-    it("should throw DatabaseError when execution fails", async () => {
+    it("実行失敗時にDatabaseErrorが投げられること", async () => {
       mockSql.begin.mockRejectedValue(new Error("Execution failed"));
 
       await expect(
@@ -184,7 +184,7 @@ describe("PostgresDbRepository", () => {
       ).rejects.toThrow("Failed to load data into table 'users'");
     });
 
-    it("should process data in batches", async () => {
+    it("データをバッチ処理できること", async () => {
       const largeData: TransformedData = {
         columns: ["id"],
         values: Array.from({ length: 2500 }, (_, i) => [i.toString()]),
@@ -203,13 +203,13 @@ describe("PostgresDbRepository", () => {
     });
   });
 
-  describe("truncateTable", () => {
+  describe("テーブルTRUNCATE", () => {
     beforeEach(async () => {
       mockSql.unsafe.mockResolvedValue([{ "?column?": 1 }]);
       await dbRepository.connect();
     });
 
-    it("should truncate table successfully", async () => {
+    it("テーブルを正常にTRUNCATEできること", async () => {
       await dbRepository.truncateTable("users");
 
       expect(mockSql.unsafe).toHaveBeenCalledWith(
@@ -217,7 +217,7 @@ describe("PostgresDbRepository", () => {
       );
     });
 
-    it("should throw DatabaseError when not connected", async () => {
+    it("未接続状態でのTRUNCATE時にDatabaseErrorが投げられること", async () => {
       await dbRepository.disconnect();
 
       await expect(dbRepository.truncateTable("users")).rejects.toThrow(
@@ -228,7 +228,7 @@ describe("PostgresDbRepository", () => {
       );
     });
 
-    it("should throw DatabaseError when truncate fails", async () => {
+    it("TRUNCATE失敗時にDatabaseErrorが投げられること", async () => {
       mockSql.unsafe.mockRejectedValue(new Error("Truncate failed"));
 
       await expect(dbRepository.truncateTable("users")).rejects.toThrow(
@@ -240,13 +240,13 @@ describe("PostgresDbRepository", () => {
     });
   });
 
-  describe("executeSQL", () => {
+  describe("SQL実行", () => {
     beforeEach(async () => {
       mockSql.unsafe.mockResolvedValue([{ "?column?": 1 }]);
       await dbRepository.connect();
     });
 
-    it("should execute SQL successfully", async () => {
+    it("SQL文を正常に実行できること", async () => {
       await dbRepository.executeSQL("CREATE INDEX idx_name ON users(name)");
 
       expect(mockSql.unsafe).toHaveBeenCalledWith(
@@ -254,7 +254,7 @@ describe("PostgresDbRepository", () => {
       );
     });
 
-    it("should throw DatabaseError when not connected", async () => {
+    it("未接続状態でのSQL実行時にDatabaseErrorが投げられること", async () => {
       await dbRepository.disconnect();
 
       await expect(dbRepository.executeSQL("SELECT 1")).rejects.toThrow(
@@ -265,7 +265,7 @@ describe("PostgresDbRepository", () => {
       );
     });
 
-    it("should throw DatabaseError when SQL execution fails", async () => {
+    it("SQL実行失敗時にDatabaseErrorが投げられること", async () => {
       mockSql.unsafe.mockRejectedValue(new Error("SQL execution failed"));
 
       await expect(dbRepository.executeSQL("INVALID SQL")).rejects.toThrow(
