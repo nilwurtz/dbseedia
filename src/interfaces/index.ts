@@ -15,7 +15,7 @@ export interface DbSeediaConfig {
   encoding?: string;
   nullValue?: string;
   batchSize?: number;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface LoadOptions {
@@ -37,7 +37,7 @@ export interface ParsedData {
 
 export interface TransformedData {
   columns: string[];
-  values: any[][];
+  values: (string | number | boolean | null)[][];
 }
 
 export interface TableSchema {

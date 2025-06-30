@@ -20,8 +20,12 @@ vi.mock("postgres", () => {
 describe("PostgreSQLデータベースリポジトリ", () => {
   let dbRepository: PostgresDbRepository;
   let config: ConnectionConfig;
-  let mockSql: any;
-  let mockPostgres: any;
+  let mockSql: {
+    begin: ReturnType<typeof vi.fn>;
+    end: ReturnType<typeof vi.fn>;
+    unsafe: ReturnType<typeof vi.fn>;
+  };
+  let mockPostgres: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -126,9 +130,11 @@ describe("PostgreSQLデータベースリポジトリ", () => {
     });
 
     it("truncate戦略で正常に実行できること", async () => {
-      mockSql.begin.mockImplementation(async (callback) => {
-        return await callback(mockSql);
-      });
+      mockSql.begin.mockImplementation(
+        async (callback: (sql: typeof mockSql) => Promise<unknown>) => {
+          return await callback(mockSql);
+        },
+      );
 
       await dbRepository.execute("users", testData, "truncate");
 
@@ -147,9 +153,11 @@ describe("PostgreSQLデータベースリポジトリ", () => {
         values: [],
       };
 
-      mockSql.begin.mockImplementation(async (callback) => {
-        return await callback(mockSql);
-      });
+      mockSql.begin.mockImplementation(
+        async (callback: (sql: typeof mockSql) => Promise<unknown>) => {
+          return await callback(mockSql);
+        },
+      );
 
       await dbRepository.execute("users", emptyData, "truncate");
 
@@ -190,13 +198,15 @@ describe("PostgreSQLデータベースリポジトリ", () => {
         values: Array.from({ length: 2500 }, (_, i) => [i.toString()]),
       };
 
-      mockSql.begin.mockImplementation(async (callback) => {
-        return await callback(mockSql);
-      });
+      mockSql.begin.mockImplementation(
+        async (callback: (sql: typeof mockSql) => Promise<unknown>) => {
+          return await callback(mockSql);
+        },
+      );
 
       await dbRepository.execute("test_table", largeData, "truncate");
 
-      const insertCalls = mockSql.unsafe.mock.calls.filter((call) =>
+      const insertCalls = mockSql.unsafe.mock.calls.filter((call: unknown[]) =>
         call[0].includes("INSERT INTO"),
       );
       expect(insertCalls.length).toBe(3);

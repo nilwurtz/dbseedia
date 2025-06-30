@@ -1,8 +1,8 @@
-import { GenericContainer, StartedTestContainer } from "testcontainers";
+import { GenericContainer, type StartedTestContainer } from "testcontainers";
 import type { ConnectionConfig } from "../../src/interfaces/index.js";
 import { SchemaLoader } from "./schema-loader.js";
 import { join, dirname } from "node:path";
-import { fileURLToPath } from "url";
+import { fileURLToPath } from "node:url";
 
 export class PostgresTestContainer {
   private container: StartedTestContainer | null = null;
