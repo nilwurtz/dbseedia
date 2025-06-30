@@ -65,11 +65,7 @@ export interface DataTransformer {
 export interface DatabaseExecutor {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
-  execute(
-    tableName: string,
-    data: TransformedData,
-    strategy: LoadStrategy,
-  ): Promise<void>;
+  execute(tableName: string, data: TransformedData, strategy: LoadStrategy): Promise<void>;
   truncateTable(tableName: string): Promise<void>;
   executeSQL(sql: string): Promise<void>;
 }

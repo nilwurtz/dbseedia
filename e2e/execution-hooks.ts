@@ -1,9 +1,6 @@
 import { afterAll, beforeAll, beforeEach } from "vitest";
 import { DbSeedia } from "../src/index.js";
-import type {
-  ConnectionConfig,
-  LoadStrategy,
-} from "../src/interfaces/index.js";
+import type { ConnectionConfig, LoadStrategy } from "../src/interfaces/index.js";
 import { PostgresTestContainer } from "./utils/test-container.js";
 
 export interface TestContext {

@@ -7,19 +7,13 @@ describe("基本ロード機能", () => {
   it("フィクスチャディレクトリからデータをロードできること", async () => {
     await getContext().dbSeedia.loadFrom("./e2e/fixtures");
 
-    const userCount = await getContext().testContainer.executeQuery(
-      "SELECT COUNT(*) FROM users",
-    );
+    const userCount = await getContext().testContainer.executeQuery("SELECT COUNT(*) FROM users");
     expect(parseInt(userCount[0])).toBe(3);
 
-    const postCount = await getContext().testContainer.executeQuery(
-      "SELECT COUNT(*) FROM posts",
-    );
+    const postCount = await getContext().testContainer.executeQuery("SELECT COUNT(*) FROM posts");
     expect(parseInt(postCount[0])).toBe(3);
 
-    const commentCount = await getContext().testContainer.executeQuery(
-      "SELECT COUNT(*) FROM comments",
-    );
+    const commentCount = await getContext().testContainer.executeQuery("SELECT COUNT(*) FROM comments");
     expect(parseInt(commentCount[0])).toBe(3);
   });
 
@@ -28,19 +22,13 @@ describe("基本ロード機能", () => {
       tables: ["users"],
     });
 
-    const userCount = await getContext().testContainer.executeQuery(
-      "SELECT COUNT(*) FROM users",
-    );
+    const userCount = await getContext().testContainer.executeQuery("SELECT COUNT(*) FROM users");
     expect(parseInt(userCount[0])).toBe(3);
 
-    const postCount = await getContext().testContainer.executeQuery(
-      "SELECT COUNT(*) FROM posts",
-    );
+    const postCount = await getContext().testContainer.executeQuery("SELECT COUNT(*) FROM posts");
     expect(parseInt(postCount[0])).toBe(0);
 
-    const commentCount = await getContext().testContainer.executeQuery(
-      "SELECT COUNT(*) FROM comments",
-    );
+    const commentCount = await getContext().testContainer.executeQuery("SELECT COUNT(*) FROM comments");
     expect(parseInt(commentCount[0])).toBe(0);
   });
 });

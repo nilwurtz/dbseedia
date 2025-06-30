@@ -7,15 +7,11 @@ describe("ファイル形式機能", () => {
   it("CSVとTSVファイルを正しくロードできること", async () => {
     await getContext().dbSeedia.loadFrom("./e2e/fixtures");
 
-    const users = await getContext().testContainer.executeQuery(
-      "SELECT name, email FROM users WHERE id = 1",
-    );
+    const users = await getContext().testContainer.executeQuery("SELECT name, email FROM users WHERE id = 1");
     expect(users[0]).toContain("John Doe");
     expect(users[0]).toContain("john@example.com");
 
-    const posts = await getContext().testContainer.executeQuery(
-      "SELECT title, content FROM posts WHERE id = 1",
-    );
+    const posts = await getContext().testContainer.executeQuery("SELECT title, content FROM posts WHERE id = 1");
     expect(posts[0]).toContain("First Post");
     expect(posts[0]).toContain("This is the first post");
   });

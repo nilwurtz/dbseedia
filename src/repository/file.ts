@@ -9,10 +9,7 @@ export interface FileRepository {
 }
 
 export class CsvFileRepository implements FileRepository {
-  async readCsv(
-    filePath: string,
-    options: ParseOptions = {},
-  ): Promise<ParsedData> {
+  async readCsv(filePath: string, options: ParseOptions = {}): Promise<ParsedData> {
     try {
       const content = await readFile(filePath, {
         encoding: (options.encoding as BufferEncoding) || "utf8",
@@ -27,9 +24,7 @@ export class CsvFileRepository implements FileRepository {
       });
 
       if (parseResult.errors.length > 0) {
-        throw new Error(
-          `CSV parsing errors: ${parseResult.errors.map((e) => e.message).join(", ")}`,
-        );
+        throw new Error(`CSV parsing errors: ${parseResult.errors.map((e) => e.message).join(", ")}`);
       }
 
       const rows = parseResult.data as string[][];
@@ -45,10 +40,7 @@ export class CsvFileRepository implements FileRepository {
         rows: dataRows,
       };
     } catch (error) {
-      throw new FileParseError(
-        `Failed to read CSV file: ${filePath}`,
-        error as Error,
-      );
+      throw new FileParseError(`Failed to read CSV file: ${filePath}`, error as Error);
     }
   }
 
@@ -60,10 +52,7 @@ export class CsvFileRepository implements FileRepository {
         .map((line) => line.trim())
         .filter((line) => line.length > 0 && !line.startsWith("#"));
     } catch (error) {
-      throw new FileParseError(
-        `Failed to read table ordering file: ${filePath}`,
-        error as Error,
-      );
+      throw new FileParseError(`Failed to read table ordering file: ${filePath}`, error as Error);
     }
   }
 }

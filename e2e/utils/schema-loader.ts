@@ -28,9 +28,7 @@ export class SchemaLoader {
         await this.loadSchemaFromFile(filePath);
       }
     } catch (error) {
-      throw new Error(
-        `Failed to load schema from directory ${schemaDirectory}: ${(error as Error).message}`,
-      );
+      throw new Error(`Failed to load schema from directory ${schemaDirectory}: ${(error as Error).message}`);
     }
   }
 
@@ -54,17 +52,13 @@ export class SchemaLoader {
           try {
             await this.executor.executeSQL(statement);
           } catch (error) {
-            console.warn(
-              `Warning: Failed to execute statement in ${filePath}: ${(error as Error).message}`,
-            );
+            console.warn(`Warning: Failed to execute statement in ${filePath}: ${(error as Error).message}`);
             // Continue with other statements
           }
         }
       }
     } catch (error) {
-      throw new Error(
-        `Failed to load schema from file ${filePath}: ${(error as Error).message}`,
-      );
+      throw new Error(`Failed to load schema from file ${filePath}: ${(error as Error).message}`);
     }
   }
 

@@ -31,15 +31,11 @@ export class DbSeedia {
       throw new ValidationError("Connection configuration is required");
     }
 
-    const connections = Array.isArray(config.connection)
-      ? config.connection
-      : [config.connection];
+    const connections = Array.isArray(config.connection) ? config.connection : [config.connection];
 
     for (const conn of connections) {
       if (!conn.host || !conn.database || !conn.username) {
-        throw new ValidationError(
-          "Host, database, and username are required for connection",
-        );
+        throw new ValidationError("Host, database, and username are required for connection");
       }
     }
 
@@ -54,9 +50,7 @@ export class DbSeedia {
   }
 
   private initializeExecutors(): void {
-    const connections = Array.isArray(this.config.connection)
-      ? this.config.connection
-      : [this.config.connection];
+    const connections = Array.isArray(this.config.connection) ? this.config.connection : [this.config.connection];
 
     for (const conn of connections) {
       const name = conn.name || "default";
@@ -65,16 +59,12 @@ export class DbSeedia {
   }
 
   async connect(): Promise<void> {
-    const connectionPromises = Array.from(this.executors.values()).map(
-      (executor) => executor.connect(),
-    );
+    const connectionPromises = Array.from(this.executors.values()).map((executor) => executor.connect());
     await Promise.all(connectionPromises);
   }
 
   async disconnect(): Promise<void> {
-    const disconnectionPromises = Array.from(this.executors.values()).map(
-      (executor) => executor.disconnect(),
-    );
+    const disconnectionPromises = Array.from(this.executors.values()).map((executor) => executor.disconnect());
     await Promise.all(disconnectionPromises);
   }
 
@@ -90,10 +80,7 @@ export class DbSeedia {
         await this.loadTable(directory, tableName, executor, strategy);
       }
     } catch (error) {
-      throw new FileParseError(
-        `Failed to load data from directory: ${directory}`,
-        error as Error,
-      );
+      throw new FileParseError(`Failed to load data from directory: ${directory}`, error as Error);
     }
   }
 
@@ -102,9 +89,7 @@ export class DbSeedia {
     const executor = this.executors.get(executorName);
 
     if (!executor) {
-      throw new ValidationError(
-        `Database executor '${executorName}' not found`,
-      );
+      throw new ValidationError(`Database executor '${executorName}' not found`);
     }
 
     return executor;
@@ -127,10 +112,7 @@ export class DbSeedia {
         .filter((file) => file.endsWith(".csv") || file.endsWith(".tsv"))
         .map((file) => file.replace(/\.(csv|tsv)$/, ""));
     } catch (error) {
-      throw new FileParseError(
-        `Failed to discover tables in directory: ${directory}`,
-        error as Error,
-      );
+      throw new FileParseError(`Failed to discover tables in directory: ${directory}`, error as Error);
     }
   }
 
@@ -166,10 +148,7 @@ export class DbSeedia {
       header: true,
     };
 
-    const parsedData = await this.fileRepository.readCsv(
-      filePath,
-      parseOptions,
-    );
+    const parsedData = await this.fileRepository.readCsv(filePath, parseOptions);
 
     const schema: TableSchema = {
       name: tableName,
@@ -180,10 +159,7 @@ export class DbSeedia {
       })),
     };
 
-    const transformedData = await this.dataTransformer.transform(
-      parsedData,
-      schema,
-    );
+    const transformedData = await this.dataTransformer.transform(parsedData, schema);
     await executor.execute(tableName, transformedData, strategy);
   }
 

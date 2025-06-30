@@ -1,19 +1,11 @@
 import postgres from "postgres";
 import { ConnectionError, DatabaseError } from "../errors/index.js";
-import type {
-  ConnectionConfig,
-  LoadStrategy,
-  TransformedData,
-} from "../interfaces/index.js";
+import type { ConnectionConfig, LoadStrategy, TransformedData } from "../interfaces/index.js";
 
 export interface DbRepository {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
-  execute(
-    tableName: string,
-    data: TransformedData,
-    strategy: LoadStrategy,
-  ): Promise<void>;
+  execute(tableName: string, data: TransformedData, strategy: LoadStrategy): Promise<void>;
   truncateTable(tableName: string): Promise<void>;
   executeSQL(sql: string): Promise<void>;
 }
@@ -53,11 +45,7 @@ export class PostgresDbRepository implements DbRepository {
     }
   }
 
-  async execute(
-    tableName: string,
-    data: TransformedData,
-    strategy: LoadStrategy,
-  ): Promise<void> {
+  async execute(tableName: string, data: TransformedData, strategy: LoadStrategy): Promise<void> {
     if (!this.sql) {
       throw new DatabaseError("Database connection not established");
     }
@@ -77,13 +65,7 @@ export class PostgresDbRepository implements DbRepository {
         const valueRows = data.values.map(
           (row) =>
             "(" +
-            row
-              .map((value) =>
-                value === null
-                  ? "NULL"
-                  : `'${String(value).replace(/'/g, "''")}'`,
-              )
-              .join(", ") +
+            row.map((value) => (value === null ? "NULL" : `'${String(value).replace(/'/g, "''")}'`)).join(", ") +
             ")",
         );
 
@@ -107,14 +89,9 @@ export class PostgresDbRepository implements DbRepository {
     }
 
     try {
-      await this.sql.unsafe(
-        `TRUNCATE TABLE ${tableName} RESTART IDENTITY CASCADE`,
-      );
+      await this.sql.unsafe(`TRUNCATE TABLE ${tableName} RESTART IDENTITY CASCADE`);
     } catch (error) {
-      throw new DatabaseError(
-        `Failed to truncate table '${tableName}': ${(error as Error).message}`,
-        error as Error,
-      );
+      throw new DatabaseError(`Failed to truncate table '${tableName}': ${(error as Error).message}`, error as Error);
     }
   }
 
@@ -126,10 +103,7 @@ export class PostgresDbRepository implements DbRepository {
     try {
       await this.sql.unsafe(sql);
     } catch (error) {
-      throw new DatabaseError(
-        `Failed to execute SQL: ${(error as Error).message}`,
-        error as Error,
-      );
+      throw new DatabaseError(`Failed to execute SQL: ${(error as Error).message}`, error as Error);
     }
   }
 }

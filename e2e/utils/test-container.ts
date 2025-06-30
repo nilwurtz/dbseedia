@@ -22,10 +22,7 @@ export class PostgresTestContainer {
       .withWaitStrategy(
         // Wait for PostgreSQL to be ready
         await import("testcontainers").then(({ Wait }) =>
-          Wait.forLogMessage(
-            "database system is ready to accept connections",
-            2,
-          ),
+          Wait.forLogMessage("database system is ready to accept connections", 2),
         ),
       )
       .start();
@@ -70,13 +67,8 @@ export class PostgresTestContainer {
     return result.output.split("\n").filter((line) => line.trim());
   }
 
-  async createTable(
-    tableName: string,
-    columns: Array<{ name: string; type: string }>,
-  ): Promise<void> {
-    const columnDefs = columns
-      .map((col) => `${col.name} ${col.type}`)
-      .join(", ");
+  async createTable(tableName: string, columns: Array<{ name: string; type: string }>): Promise<void> {
+    const columnDefs = columns.map((col) => `${col.name} ${col.type}`).join(", ");
     const createTableQuery = `CREATE TABLE IF NOT EXISTS ${tableName} (${columnDefs});`;
 
     await this.executeQuery(createTableQuery);
@@ -119,15 +111,7 @@ export class PostgresTestContainer {
 
     const copyCommand = `\\copy ${tableName} FROM '${csvPath}' DELIMITER ',' CSV HEADER`;
 
-    await this.container.exec([
-      "psql",
-      "-U",
-      this.username,
-      "-d",
-      this.database,
-      "-c",
-      copyCommand,
-    ]);
+    await this.container.exec(["psql", "-U", this.username, "-d", this.database, "-c", copyCommand]);
   }
 
   async copyDataFromTSV(tableName: string, tsvPath: string): Promise<void> {
@@ -137,14 +121,6 @@ export class PostgresTestContainer {
 
     const copyCommand = `\\copy ${tableName} FROM '${tsvPath}' DELIMITER E'\\t' CSV HEADER`;
 
-    await this.container.exec([
-      "psql",
-      "-U",
-      this.username,
-      "-d",
-      this.database,
-      "-c",
-      copyCommand,
-    ]);
+    await this.container.exec(["psql", "-U", this.username, "-d", this.database, "-c", copyCommand]);
   }
 }

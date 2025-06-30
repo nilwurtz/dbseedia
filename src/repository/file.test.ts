@@ -20,8 +20,7 @@ describe("CSVファイルリポジトリ", () => {
 
   describe("CSV読み込み", () => {
     it("ヘッダー付きCSVファイルの読み込みができること", async () => {
-      const csvContent =
-        "name,age,email\nJohn,25,john@example.com\nJane,30,jane@example.com";
+      const csvContent = "name,age,email\nJohn,25,john@example.com\nJane,30,jane@example.com";
       const csvPath = join(tempDir, "users.csv");
       await writeFile(csvPath, csvContent);
 
@@ -75,9 +74,7 @@ describe("CSVファイルリポジトリ", () => {
     it("存在しないCSVファイルでFileParseErrorが投げられること", async () => {
       const nonExistentPath = join(tempDir, "non-existent.csv");
 
-      await expect(fileRepository.readCsv(nonExistentPath)).rejects.toThrow(
-        FileParseError,
-      );
+      await expect(fileRepository.readCsv(nonExistentPath)).rejects.toThrow(FileParseError);
     });
 
     it("ヘッダーと値の空白文字をトリミングできること", async () => {
@@ -104,8 +101,7 @@ describe("CSVファイルリポジトリ", () => {
     });
 
     it("空行とコメントを無視できること", async () => {
-      const orderingContent =
-        "users\n\n# This is a comment\nposts\n\ncomments\n# Another comment";
+      const orderingContent = "users\n\n# This is a comment\nposts\n\ncomments\n# Another comment";
       const orderingPath = join(tempDir, "table-ordering.txt");
       await writeFile(orderingPath, orderingContent);
 
@@ -117,9 +113,7 @@ describe("CSVファイルリポジトリ", () => {
     it("存在しない順序ファイルでFileParseErrorが投げられること", async () => {
       const nonExistentPath = join(tempDir, "non-existent.txt");
 
-      await expect(
-        fileRepository.readTableOrdering(nonExistentPath),
-      ).rejects.toThrow(FileParseError);
+      await expect(fileRepository.readTableOrdering(nonExistentPath)).rejects.toThrow(FileParseError);
     });
 
     it("空の順序ファイルを処理できること", async () => {

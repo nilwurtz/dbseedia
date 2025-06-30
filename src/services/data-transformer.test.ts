@@ -126,12 +126,10 @@ describe("デフォルトデータ変換", () => {
         columns: [],
       };
 
-      await expect(
-        transformer.transform(parsedData, schemaWithoutColumns),
-      ).rejects.toThrow(DataTransformError);
-      await expect(
-        transformer.transform(parsedData, schemaWithoutColumns),
-      ).rejects.toThrow("Failed to transform data for table: users");
+      await expect(transformer.transform(parsedData, schemaWithoutColumns)).rejects.toThrow(DataTransformError);
+      await expect(transformer.transform(parsedData, schemaWithoutColumns)).rejects.toThrow(
+        "Failed to transform data for table: users",
+      );
     });
 
     it("null値でない値を元の形で保持できること", async () => {

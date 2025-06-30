@@ -30,9 +30,7 @@ describe("DbSeedieコアクラス", () => {
       const invalidConfig = {} as DbSeediaConfig;
 
       expect(() => new DbSeedia(invalidConfig)).toThrow(ValidationError);
-      expect(() => new DbSeedia(invalidConfig)).toThrow(
-        "Connection configuration is required",
-      );
+      expect(() => new DbSeedia(invalidConfig)).toThrow("Connection configuration is required");
     });
 
     it("必須接続フィールドがない場合にValidationErrorが投げられること", () => {
@@ -44,9 +42,7 @@ describe("DbSeedieコアクラス", () => {
       };
 
       expect(() => new DbSeedia(invalidConfig)).toThrow(ValidationError);
-      expect(() => new DbSeedia(invalidConfig)).toThrow(
-        "Host, database, and username are required for connection",
-      );
+      expect(() => new DbSeedia(invalidConfig)).toThrow("Host, database, and username are required for connection");
     });
 
     it("設定にデフォルト値を適用できること", () => {
@@ -96,12 +92,10 @@ describe("DbSeedieコアクラス", () => {
     });
 
     it("無効なターゲットでValidationErrorが投げられること", async () => {
-      await expect(
-        dbSeedia.loadFrom("/test/fixtures", { target: "nonexistent" }),
-      ).rejects.toThrow(ValidationError);
-      await expect(
-        dbSeedia.loadFrom("/test/fixtures", { target: "nonexistent" }),
-      ).rejects.toThrow("Database executor 'nonexistent' not found");
+      await expect(dbSeedia.loadFrom("/test/fixtures", { target: "nonexistent" })).rejects.toThrow(ValidationError);
+      await expect(dbSeedia.loadFrom("/test/fixtures", { target: "nonexistent" })).rejects.toThrow(
+        "Database executor 'nonexistent' not found",
+      );
     });
   });
 
