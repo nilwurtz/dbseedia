@@ -43,7 +43,8 @@ mise install                    # Install Node.js 22.16.0
 # Development (when package.json exists)
 npm install                     # Install dependencies
 npm run build                   # TypeScript compilation
-npm run test                    # Run Vitest tests
+npm run test                    # Run Vitest test
+npm run e2e
 npm run lint                    # ESLint checking
 npm run typecheck              # TypeScript type checking
 ```
