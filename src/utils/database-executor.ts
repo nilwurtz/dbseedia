@@ -109,4 +109,19 @@ export class PostgresDatabaseExecutor implements DatabaseExecutor {
       );
     }
   }
+
+  async executeSQL(sql: string): Promise<void> {
+    if (!this.sql) {
+      throw new DatabaseError("Database connection not established");
+    }
+
+    try {
+      await this.sql.unsafe(sql);
+    } catch (error) {
+      throw new DatabaseError(
+        `Failed to execute SQL: ${(error as Error).message}`,
+        error as Error,
+      );
+    }
+  }
 }

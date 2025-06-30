@@ -71,4 +71,5 @@ export interface DatabaseExecutor {
     strategy: LoadStrategy,
   ): Promise<void>;
   truncateTable(tableName: string): Promise<void>;
+  executeSQL(sql: string): Promise<void>;
 }

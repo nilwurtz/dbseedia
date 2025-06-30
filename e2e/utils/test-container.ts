@@ -1,5 +1,8 @@
 import { GenericContainer, StartedTestContainer } from "testcontainers";
 import type { ConnectionConfig } from "../../src/interfaces/index.js";
+import { SchemaLoader } from "./schema-loader.js";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
 
 export class PostgresTestContainer {
   private container: StartedTestContainer | null = null;
@@ -84,38 +87,29 @@ export class PostgresTestContainer {
       throw new Error("Container not started");
     }
 
-    const dropTablesQuery = `
-      DROP TABLE IF EXISTS comments CASCADE;
-      DROP TABLE IF EXISTS posts CASCADE;
-      DROP TABLE IF EXISTS users CASCADE;
-    `;
+    const currentDir = dirname(fileURLToPath(import.meta.url));
+    const schemaDir = join(currentDir, "..", "schema");
+    
+    const schemaLoader = new SchemaLoader({
+      host: this.container.getHost(),
+      port: this.container.getMappedPort(5432),
+      database: this.database,
+      username: this.username,
+      password: this.password,
+      ssl: false,
+    });
 
-    await this.executeQuery(dropTablesQuery);
+    await schemaLoader.connect();
+    try {
+      await schemaLoader.loadSchemaFromDirectory(schemaDir);
+    } finally {
+      await schemaLoader.disconnect();
+    }
   }
 
   async setupTestTables(): Promise<void> {
-    await this.createTable("users", [
-      { name: "id", type: "SERIAL PRIMARY KEY" },
-      { name: "name", type: "VARCHAR(255)" },
-      { name: "email", type: "VARCHAR(255)" },
-      { name: "created_at", type: "TIMESTAMP" },
-    ]);
-
-    await this.createTable("posts", [
-      { name: "id", type: "SERIAL PRIMARY KEY" },
-      { name: "user_id", type: "INTEGER" },
-      { name: "title", type: "VARCHAR(255)" },
-      { name: "content", type: "TEXT" },
-      { name: "created_at", type: "TIMESTAMP" },
-    ]);
-
-    await this.createTable("comments", [
-      { name: "id", type: "SERIAL PRIMARY KEY" },
-      { name: "post_id", type: "INTEGER" },
-      { name: "author_name", type: "VARCHAR(255)" },
-      { name: "content", type: "TEXT" },
-      { name: "created_at", type: "TIMESTAMP" },
-    ]);
+    // Schema setup is now handled by resetDatabase() using SQL files
+    // This method is kept for backward compatibility but does nothing
   }
 
   async copyDataFromCSV(tableName: string, csvPath: string): Promise<void> {
