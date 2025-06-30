@@ -24,4 +24,48 @@ describe("テーブル読み込み順序機能", () => {
 
     await dbSeedia.disconnect();
   });
+
+  it("外部キー制約に違反する順序でのロードはエラーになること", async () => {
+    const dbSeedia = getContext().dbSeedia.withStrategy("truncate");
+    await dbSeedia.connect();
+
+    try {
+      // 外部キー制約違反を確実に発生させるため、projectsテーブルのみロードを試行
+      // projectsはemployeesテーブルのlead_employee_idを参照するが、employeesテーブルが空のためエラーになる
+      await dbSeedia.loadFrom("./e2e/scenarios/ordering/fixtures-fk-test-wrong-order", {
+        tables: ["projects"],
+      });
+
+      // データがロードされているか確認（外部キー制約エラーの場合は0になるはず）
+      const projectCount = await getContext().testContainer.executeQuery("SELECT COUNT(*) FROM projects");
+
+      // もしここまで到達した場合、外部キー制約が正しく適用されていない
+      expect(parseInt(projectCount[0])).toBe(0); // データがロードされていないことを期待
+    } catch (error) {
+      // 外部キー制約エラーが発生することを確認
+      expect(error).toBeInstanceOf(Error);
+      expect((error as Error).message).toContain("Failed to load data");
+    }
+
+    await dbSeedia.disconnect();
+  });
+
+  it("正しい順序でのロードは成功すること（新しいスキーマ）", async () => {
+    const dbSeedia = getContext().dbSeedia.withStrategy("truncate");
+    await dbSeedia.connect();
+
+    // 正しい順序（departments -> employees -> projects）でロード
+    await dbSeedia.loadFrom("./e2e/scenarios/ordering/fixtures-fk-test");
+
+    // すべてのテーブルにデータが正常にロードされたことを確認
+    const deptCount = await getContext().testContainer.executeQuery("SELECT COUNT(*) FROM departments");
+    const empCount = await getContext().testContainer.executeQuery("SELECT COUNT(*) FROM employees");
+    const projCount = await getContext().testContainer.executeQuery("SELECT COUNT(*) FROM projects");
+
+    expect(parseInt(deptCount[0])).toBe(3);
+    expect(parseInt(empCount[0])).toBe(4);
+    expect(parseInt(projCount[0])).toBe(3);
+
+    await dbSeedia.disconnect();
+  });
 });
