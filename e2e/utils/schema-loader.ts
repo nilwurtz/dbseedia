@@ -1,13 +1,13 @@
-import { readFile, readdir } from "fs/promises";
-import { join } from "path";
+import { readFile, readdir } from "node:fs/promises";
+import { join } from "node:path";
 import type { ConnectionConfig } from "../../src/interfaces/index.js";
-import { PostgresDatabaseExecutor } from "../../src/utils/database-executor.js";
+import { PostgresDbRepository } from "../../src/repository/db.js";
 
 export class SchemaLoader {
-  private executor: PostgresDatabaseExecutor;
+  private executor: PostgresDbRepository;
 
   constructor(connectionConfig: ConnectionConfig) {
-    this.executor = new PostgresDatabaseExecutor(connectionConfig);
+    this.executor = new PostgresDbRepository(connectionConfig);
   }
 
   async connect(): Promise<void> {
