@@ -1,9 +1,9 @@
+import { DataTransformError } from "../errors/index.js";
 import type {
   ParsedData,
   TableSchema,
   TransformedData,
 } from "../interfaces/index.js";
-import { DataTransformError } from "../errors/index.js";
 
 export interface DataTransformer {
   transform(data: ParsedData, schema: TableSchema): Promise<TransformedData>;

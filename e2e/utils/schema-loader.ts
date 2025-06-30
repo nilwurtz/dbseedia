@@ -1,4 +1,4 @@
-import { readFile, readdir } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { ConnectionConfig } from "../../src/interfaces/index.js";
 import { PostgresDbRepository } from "../../src/repository/db.js";

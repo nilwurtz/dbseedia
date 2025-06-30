@@ -1,9 +1,9 @@
 export { DbSeedia } from "./core/dbseedia.js";
-export * from "./interfaces/index.js";
 export * from "./errors/index.js";
+export * from "./interfaces/index.js";
+export { type DbRepository, PostgresDbRepository } from "./repository/db.js";
 export { CsvFileRepository, type FileRepository } from "./repository/file.js";
 export {
-  DefaultDataTransformer,
   type DataTransformer,
+  DefaultDataTransformer,
 } from "./services/data-transformer.js";
-export { PostgresDbRepository, type DbRepository } from "./repository/db.js";

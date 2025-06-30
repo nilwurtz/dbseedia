@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { DefaultDataTransformer } from "./data-transformer.js";
+import { beforeEach, describe, expect, it } from "vitest";
 import { DataTransformError } from "../errors/index.js";
 import type { ParsedData, TableSchema } from "../interfaces/index.js";
+import { DefaultDataTransformer } from "./data-transformer.js";
 
 describe("デフォルトデータ変換", () => {
   let transformer: DefaultDataTransformer;

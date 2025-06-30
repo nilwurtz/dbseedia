@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { setupE2EHooks } from "../../execution-hooks.js";
 
 describe("ファイル形式機能", () => {

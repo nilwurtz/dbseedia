@@ -1,17 +1,17 @@
-import { join } from "node:path";
 import { readdir } from "node:fs/promises";
+import { join } from "node:path";
+import { FileParseError, ValidationError } from "../errors/index.js";
 import type {
-  DbSeediaConfig,
   ConnectionConfig,
+  DbSeediaConfig,
   LoadOptions,
   LoadStrategy,
   ParseOptions,
   TableSchema,
 } from "../interfaces/index.js";
+import { PostgresDbRepository } from "../repository/db.js";
 import { CsvFileRepository } from "../repository/file.js";
 import { DefaultDataTransformer } from "../services/data-transformer.js";
-import { PostgresDbRepository } from "../repository/db.js";
-import { ValidationError, FileParseError } from "../errors/index.js";
 
 export class DbSeedia {
   private config: DbSeediaConfig;

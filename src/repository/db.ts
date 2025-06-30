@@ -1,10 +1,10 @@
 import postgres from "postgres";
+import { ConnectionError, DatabaseError } from "../errors/index.js";
 import type {
   ConnectionConfig,
-  TransformedData,
   LoadStrategy,
+  TransformedData,
 } from "../interfaces/index.js";
-import { DatabaseError, ConnectionError } from "../errors/index.js";
 
 export interface DbRepository {
   connect(): Promise<void>;

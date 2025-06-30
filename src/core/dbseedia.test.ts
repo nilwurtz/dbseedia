@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import { DbSeedia } from "./dbseedia.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ValidationError } from "../errors/index.js";
-import type { DbSeediaConfig, ConnectionConfig } from "../interfaces/index.js";
+import type { ConnectionConfig, DbSeediaConfig } from "../interfaces/index.js";
+import { DbSeedia } from "./dbseedia.js";
 
 describe("DbSeedieコアクラス", () => {
   let dbSeedia: DbSeedia;

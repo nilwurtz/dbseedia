@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { parse } from "papaparse";
-import type { ParseOptions, ParsedData } from "../interfaces/index.js";
 import { FileParseError } from "../errors/index.js";
+import type { ParsedData, ParseOptions } from "../interfaces/index.js";
 
 export interface FileRepository {
   readCsv(filePath: string, options?: ParseOptions): Promise<ParsedData>;

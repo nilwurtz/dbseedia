@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import { PostgresDbRepository } from "./db.js";
-import { DatabaseError, ConnectionError } from "../errors/index.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ConnectionError, DatabaseError } from "../errors/index.js";
 import type { ConnectionConfig, TransformedData } from "../interfaces/index.js";
+import { PostgresDbRepository } from "./db.js";
 
 vi.mock("postgres", () => {
   const mockSql = {

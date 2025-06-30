@@ -1,10 +1,10 @@
-import { beforeAll, afterAll, beforeEach } from "vitest";
+import { afterAll, beforeAll, beforeEach } from "vitest";
 import { DbSeedia } from "../src/index.js";
-import { PostgresTestContainer } from "./utils/test-container.js";
 import type {
   ConnectionConfig,
   LoadStrategy,
 } from "../src/interfaces/index.js";
+import { PostgresTestContainer } from "./utils/test-container.js";
 
 export interface TestContext {
   testContainer: PostgresTestContainer;

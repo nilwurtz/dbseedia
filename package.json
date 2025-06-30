@@ -17,7 +17,8 @@
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
-    "check": "tsc --noEmit && biome check .",
+    "check": "biome check .",
+    "check:fix": "biome check --fix .",
     "e2e": "vitest run --config vitest.e2e.config.ts",
     "test:watch": "vitest",
     "format": "biome format --write .",
