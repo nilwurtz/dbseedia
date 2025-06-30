@@ -1,0 +1,112 @@
+import postgres from "postgres";
+import type {
+  DatabaseExecutor,
+  ConnectionConfig,
+  TransformedData,
+  LoadStrategy,
+} from "../interfaces/index.js";
+import { DatabaseError, ConnectionError } from "../errors/index.js";
+
+export class PostgresDatabaseExecutor implements DatabaseExecutor {
+  private sql: postgres.Sql | null = null;
+  private config: ConnectionConfig;
+
+  constructor(config: ConnectionConfig) {
+    this.config = config;
+  }
+
+  async connect(): Promise<void> {
+    try {
+      this.sql = postgres({
+        host: this.config.host,
+        port: this.config.port || 5432,
+        database: this.config.database,
+        username: this.config.username,
+        password: this.config.password,
+        ssl: this.config.ssl || false,
+      });
+
+      await this.sql`SELECT 1`;
+    } catch (error) {
+      throw new ConnectionError(
+        `Failed to connect to database: ${this.config.host}:${this.config.port || 5432}/${this.config.database}`,
+        error as Error,
+      );
+    }
+  }
+
+  async disconnect(): Promise<void> {
+    if (this.sql) {
+      await this.sql.end();
+      this.sql = null;
+    }
+  }
+
+  async execute(
+    tableName: string,
+    data: TransformedData,
+    strategy: LoadStrategy,
+  ): Promise<void> {
+    if (!this.sql) {
+      throw new DatabaseError("Database connection not established");
+    }
+
+    try {
+      await this.sql.begin(async (sql) => {
+        if (strategy === "truncate") {
+          await this.truncateTable(tableName);
+        }
+
+        if (data.values.length === 0) {
+          return;
+        }
+
+        const columnNames = data.columns.join(", ");
+        // Use a simpler approach with INSERT statements for now
+        // In future versions, we can implement streaming COPY FROM
+        const insertQuery = `INSERT INTO ${tableName} (${columnNames}) VALUES `;
+        const valueRows = data.values.map(
+          (row) =>
+            "(" +
+            row
+              .map((value) =>
+                value === null
+                  ? "NULL"
+                  : `'${String(value).replace(/'/g, "''")}'`,
+              )
+              .join(", ") +
+            ")",
+        );
+
+        // Process in batches to avoid large queries
+        const batchSize = 1000;
+        for (let i = 0; i < valueRows.length; i += batchSize) {
+          const batch = valueRows.slice(i, i + batchSize);
+          await sql.unsafe(insertQuery + batch.join(", "));
+        }
+      });
+    } catch (error) {
+      throw new DatabaseError(
+        `Failed to load data into table '${tableName}': ${(error as Error).message}`,
+        error as Error,
+      );
+    }
+  }
+
+  async truncateTable(tableName: string): Promise<void> {
+    if (!this.sql) {
+      throw new DatabaseError("Database connection not established");
+    }
+
+    try {
+      await this.sql.unsafe(
+        `TRUNCATE TABLE ${tableName} RESTART IDENTITY CASCADE`,
+      );
+    } catch (error) {
+      throw new DatabaseError(
+        `Failed to truncate table '${tableName}': ${(error as Error).message}`,
+        error as Error,
+      );
+    }
+  }
+}
