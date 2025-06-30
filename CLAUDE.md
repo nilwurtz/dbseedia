@@ -13,7 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 The project follows a layered architecture with three main components:
 
 - **CLI Tool**: Command parser and user interface
-- **Core Library**: PgUnit core with business logic
+- **Core Library**: DbSeedia core with business logic
 - **Database Executor**: PostgreSQL connection and COPY operations
 
 ### Key Interfaces
@@ -21,7 +21,7 @@ The project follows a layered architecture with three main components:
 - `FileReader`: Handles CSV/TSV parsing and table-ordering.txt
 - `DataTransformer`: Converts parsed data to database format
 - `DatabaseExecutor`: Manages database connections and COPY operations
-- `PgUnit`: Main API class with fluent interface
+- `DbSeedia`: Main API class with fluent interface
 
 ## Technology Stack
 

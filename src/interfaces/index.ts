@@ -8,7 +8,7 @@ export interface ConnectionConfig {
   ssl?: boolean | object;
 }
 
-export interface PgUnitConfig {
+export interface DbSeediaConfig {
   connection: ConnectionConfig | ConnectionConfig[];
   strategy?: "truncate" | "delete";
   separator?: "," | "\t" | string;
@@ -68,7 +68,7 @@ export interface DatabaseExecutor {
   execute(
     tableName: string,
     data: TransformedData,
-    strategy: LoadStrategy,
+    strategy: LoadStrategy
   ): Promise<void>;
   truncateTable(tableName: string): Promise<void>;
 }
