@@ -50,7 +50,7 @@ export class PostgresTestContainer {
     }
   }
 
-  async executeQuery(query: string): Promise<any[]> {
+  async executeQuery(query: string): Promise<string[]> {
     if (!this.container) {
       throw new Error("Container not started");
     }

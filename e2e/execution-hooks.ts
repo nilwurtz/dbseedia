@@ -1,7 +1,10 @@
 import { beforeAll, afterAll, beforeEach } from "vitest";
 import { DbSeedia } from "../src/index.js";
 import { PostgresTestContainer } from "./utils/test-container.js";
-import type { ConnectionConfig } from "../src/interfaces/index.js";
+import type {
+  ConnectionConfig,
+  LoadStrategy,
+} from "../src/interfaces/index.js";
 
 export interface TestContext {
   testContainer: PostgresTestContainer;
@@ -9,7 +12,7 @@ export interface TestContext {
   dbSeedia: DbSeedia;
 }
 
-export function setupE2EHooks(strategy: string = "truncate") {
+export function setupE2EHooks(strategy: LoadStrategy = "truncate") {
   let testContainer: PostgresTestContainer;
   let connectionConfig: ConnectionConfig;
   let dbSeedia: DbSeedia;
@@ -20,7 +23,7 @@ export function setupE2EHooks(strategy: string = "truncate") {
 
     dbSeedia = new DbSeedia({
       connection: connectionConfig,
-      strategy: strategy as any,
+      strategy: strategy,
     });
 
     await dbSeedia.connect();
