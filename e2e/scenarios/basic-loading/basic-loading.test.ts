@@ -7,14 +7,14 @@ describe("基本ロード機能", () => {
   it("フィクスチャディレクトリからデータをロードできること", async () => {
     await getContext().dbSeedia.loadFrom("./e2e/fixtures");
 
-    const userCount = await getContext().testContainer.executeQuery("SELECT COUNT(*) FROM users");
-    expect(parseInt(userCount[0])).toBe(3);
+    const userRows = await getContext().testContainer.executeQuery("SELECT * FROM users");
+    expect(userRows.length).toBe(3);
 
-    const postCount = await getContext().testContainer.executeQuery("SELECT COUNT(*) FROM posts");
-    expect(parseInt(postCount[0])).toBe(3);
+    const postRows = await getContext().testContainer.executeQuery("SELECT * FROM posts");
+    expect(postRows.length).toBe(3);
 
-    const commentCount = await getContext().testContainer.executeQuery("SELECT COUNT(*) FROM comments");
-    expect(parseInt(commentCount[0])).toBe(3);
+    const commentRows = await getContext().testContainer.executeQuery("SELECT * FROM comments");
+    expect(commentRows.length).toBe(3);
   });
 
   it("指定したテーブルのみをロードできること", async () => {

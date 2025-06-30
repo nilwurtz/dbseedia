@@ -68,27 +68,20 @@ export class PostgresTestContainer {
       this.database,
       "-c",
       query,
+      "--csv", // output in CSV format
       "-t", // tuples only
       "-A", // unaligned
     ]);
 
     console.log(`[TestContainer] Query exit code: ${result.exitCode}`);
-    console.log(`[TestContainer] Query output: ${result.output}`);
+    console.log(`[TestContainer] Query output: \n${result.output}`);
 
     if (result.exitCode !== 0) {
       console.error(`[TestContainer] Query failed with exit code ${result.exitCode}`);
       console.error(`[TestContainer] Error output: ${result.output}`);
     }
 
-    const output = result.output.trim();
-
-    if (!output) {
-      console.warn("[TestContainer] No output from query");
-      return [];
-    }
-    console.log(`[TestContainer] Query output: ${output}`);
-
-    return output.split("\n").filter((line) => line.trim());
+    return result.output.split("\n").filter((line) => line.trim());
   }
 
   async createTable(tableName: string, columns: Array<{ name: string; type: string }>): Promise<void> {
