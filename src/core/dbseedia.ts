@@ -1,4 +1,3 @@
-import { readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { FileParseError, ValidationError } from "../errors/index.js";
 import type {
@@ -76,6 +75,10 @@ export class DbSeedia {
       const tableOrdering = await this.getTableOrdering(directory);
       const tablesToLoad = options.tables || tableOrdering;
 
+      if (tablesToLoad.length === 0) {
+        throw new FileParseError(`No tables specified to load from directory: ${directory}`);
+      }
+
       for (const tableName of tablesToLoad) {
         await this.loadTable(directory, tableName, executor, strategy);
       }
@@ -100,19 +103,8 @@ export class DbSeedia {
 
     try {
       return await this.fileRepository.readTableOrdering(orderingFile);
-    } catch {
-      return await this.discoverTables(directory);
-    }
-  }
-
-  private async discoverTables(directory: string): Promise<string[]> {
-    try {
-      const files = await readdir(directory);
-      return files
-        .filter((file) => file.endsWith(".csv") || file.endsWith(".tsv"))
-        .map((file) => file.replace(/\.(csv|tsv)$/, ""));
     } catch (error) {
-      throw new FileParseError(`Failed to discover tables in directory: ${directory}`, error as Error);
+      throw new FileParseError(`table-ordering.txt not found in directory: ${directory}`, error as Error);
     }
   }
 
