@@ -21,8 +21,6 @@ describe("テーブル読み込み順序機能", () => {
     expect(parseInt(userCount[0])).toBe(3);
     expect(parseInt(postCount[0])).toBe(3);
     expect(parseInt(commentCount[0])).toBe(3);
-
-    await dbSeedia.disconnect();
   });
 
   it("外部キー制約に違反する順序でのロードはエラーになること", async () => {
@@ -46,8 +44,6 @@ describe("テーブル読み込み順序機能", () => {
       expect(error).toBeInstanceOf(Error);
       expect((error as Error).message).toContain("Failed to load data");
     }
-
-    await dbSeedia.disconnect();
   });
 
   it("正しい順序でのロードは成功すること（新しいスキーマ）", async () => {
@@ -65,7 +61,5 @@ describe("テーブル読み込み順序機能", () => {
     expect(parseInt(deptCount[0])).toBe(3);
     expect(parseInt(empCount[0])).toBe(4);
     expect(parseInt(projCount[0])).toBe(3);
-
-    await dbSeedia.disconnect();
   });
 });
