@@ -89,7 +89,7 @@ export class PostgresTestContainer {
 
     const currentDir = dirname(fileURLToPath(import.meta.url));
     const schemaDir = join(currentDir, "..", "schema");
-    
+
     const schemaLoader = new SchemaLoader({
       host: this.container.getHost(),
       port: this.container.getMappedPort(5432),
