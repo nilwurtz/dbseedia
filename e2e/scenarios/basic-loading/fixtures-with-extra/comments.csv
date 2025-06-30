@@ -1,0 +1,4 @@
+id,post_id,author_name,content,created_at
+1,1,Anonymous,Great post!,2024-01-01 12:00:00
+2,1,Reader,I agree,2024-01-01 13:00:00
+3,2,Fan,Nice work,2024-01-01 14:00:00

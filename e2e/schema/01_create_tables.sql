@@ -22,3 +22,9 @@ CREATE TABLE IF NOT EXISTS comments (
     content TEXT,
     created_at TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS tags (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    description TEXT
+);

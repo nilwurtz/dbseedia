@@ -29,4 +29,23 @@ describe("基本ロード機能", () => {
     const commentCount = await getContext().testContainer.executeQuery("SELECT COUNT(*) FROM comments");
     expect(parseInt(commentCount[0])).toBe(3);
   });
+
+  it("table-ordering.txtに指定されていないテーブルはCSVがあってもロードされないこと", async () => {
+    // CSVファイルが存在するがtable-ordering.txtに記載されていないtags.csvを含むフィクスチャを使用
+    await getContext().dbSeedia.loadFrom("./e2e/scenarios/basic-loading/fixtures-with-extra");
+
+    // table-ordering.txtに指定されたテーブルは正常にロードされる
+    const userCount = await getContext().testContainer.executeQuery("SELECT COUNT(*) FROM users");
+    expect(parseInt(userCount[0])).toBe(3);
+
+    const postCount = await getContext().testContainer.executeQuery("SELECT COUNT(*) FROM posts");
+    expect(parseInt(postCount[0])).toBe(3);
+
+    const commentCount = await getContext().testContainer.executeQuery("SELECT COUNT(*) FROM comments");
+    expect(parseInt(commentCount[0])).toBe(3);
+
+    // table-ordering.txtに指定されていないtagsテーブルはロードされない（0件のまま）
+    const tagCount = await getContext().testContainer.executeQuery("SELECT COUNT(*) FROM tags");
+    expect(parseInt(tagCount[0])).toBe(0);
+  });
 });
