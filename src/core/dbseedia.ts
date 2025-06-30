@@ -1,30 +1,27 @@
-import { join } from "path";
-import { readdir } from "fs/promises";
+import { join } from "node:path";
+import { readdir } from "node:fs/promises";
 import type {
   DbSeediaConfig,
   ConnectionConfig,
   LoadOptions,
   LoadStrategy,
-  DatabaseExecutor,
-  FileReader,
-  DataTransformer,
   ParseOptions,
   TableSchema,
 } from "../interfaces/index.js";
-import { CsvFileReader } from "../utils/file-reader.js";
-import { DefaultDataTransformer } from "../utils/data-transformer.js";
-import { PostgresDatabaseExecutor } from "../utils/database-executor.js";
+import { CsvFileRepository } from "../repository/file.js";
+import { DefaultDataTransformer } from "../services/data-transformer.js";
+import { PostgresDbRepository } from "../repository/db.js";
 import { ValidationError, FileParseError } from "../errors/index.js";
 
 export class DbSeedia {
   private config: DbSeediaConfig;
-  private executors: Map<string, DatabaseExecutor> = new Map();
-  private fileReader: FileReader;
-  private dataTransformer: DataTransformer;
+  private executors: Map<string, PostgresDbRepository> = new Map();
+  private fileRepository: CsvFileRepository;
+  private dataTransformer: DefaultDataTransformer;
 
   constructor(config: DbSeediaConfig) {
     this.config = this.validateConfig(config);
-    this.fileReader = new CsvFileReader();
+    this.fileRepository = new CsvFileRepository();
     this.dataTransformer = new DefaultDataTransformer(config.nullValue);
     this.initializeExecutors();
   }
@@ -63,7 +60,7 @@ export class DbSeedia {
 
     for (const conn of connections) {
       const name = conn.name || "default";
-      this.executors.set(name, new PostgresDatabaseExecutor(conn));
+      this.executors.set(name, new PostgresDbRepository(conn));
     }
   }
 
@@ -100,7 +97,7 @@ export class DbSeedia {
     }
   }
 
-  private getExecutor(target?: string): DatabaseExecutor {
+  private getExecutor(target?: string): PostgresDbRepository {
     const executorName = target || "default";
     const executor = this.executors.get(executorName);
 
@@ -117,7 +114,7 @@ export class DbSeedia {
     const orderingFile = join(directory, "table-ordering.txt");
 
     try {
-      return await this.fileReader.readTableOrdering(orderingFile);
+      return await this.fileRepository.readTableOrdering(orderingFile);
     } catch {
       return await this.discoverTables(directory);
     }
@@ -140,7 +137,7 @@ export class DbSeedia {
   private async loadTable(
     directory: string,
     tableName: string,
-    executor: DatabaseExecutor,
+    executor: PostgresDbRepository,
     strategy: LoadStrategy,
   ): Promise<void> {
     const csvFile = join(directory, `${tableName}.csv`);
@@ -150,12 +147,12 @@ export class DbSeedia {
     let separator: string;
 
     try {
-      await import("fs").then((fs) => fs.promises.access(csvFile));
+      await import("node:fs").then((fs) => fs.promises.access(csvFile));
       filePath = csvFile;
       separator = ",";
     } catch {
       try {
-        await import("fs").then((fs) => fs.promises.access(tsvFile));
+        await import("node:fs").then((fs) => fs.promises.access(tsvFile));
         filePath = tsvFile;
         separator = "\t";
       } catch {
@@ -169,7 +166,10 @@ export class DbSeedia {
       header: true,
     };
 
-    const parsedData = await this.fileReader.readCSV(filePath, parseOptions);
+    const parsedData = await this.fileRepository.readCsv(
+      filePath,
+      parseOptions,
+    );
 
     const schema: TableSchema = {
       name: tableName,

@@ -1,13 +1,24 @@
 import postgres from "postgres";
 import type {
-  DatabaseExecutor,
   ConnectionConfig,
   TransformedData,
   LoadStrategy,
 } from "../interfaces/index.js";
 import { DatabaseError, ConnectionError } from "../errors/index.js";
 
-export class PostgresDatabaseExecutor implements DatabaseExecutor {
+export interface DbRepository {
+  connect(): Promise<void>;
+  disconnect(): Promise<void>;
+  execute(
+    tableName: string,
+    data: TransformedData,
+    strategy: LoadStrategy,
+  ): Promise<void>;
+  truncateTable(tableName: string): Promise<void>;
+  executeSQL(sql: string): Promise<void>;
+}
+
+export class PostgresDbRepository implements DbRepository {
   private sql: postgres.Sql | null = null;
   private config: ConnectionConfig;
 
@@ -26,7 +37,7 @@ export class PostgresDatabaseExecutor implements DatabaseExecutor {
         ssl: this.config.ssl || false,
       });
 
-      await this.sql`SELECT 1`;
+      await this.sql.unsafe("SELECT 1");
     } catch (error) {
       throw new ConnectionError(
         `Failed to connect to database: ${this.config.host}:${this.config.port || 5432}/${this.config.database}`,
@@ -62,8 +73,6 @@ export class PostgresDatabaseExecutor implements DatabaseExecutor {
         }
 
         const columnNames = data.columns.join(", ");
-        // Use a simpler approach with INSERT statements for now
-        // In future versions, we can implement streaming COPY FROM
         const insertQuery = `INSERT INTO ${tableName} (${columnNames}) VALUES `;
         const valueRows = data.values.map(
           (row) =>
@@ -78,7 +87,6 @@ export class PostgresDatabaseExecutor implements DatabaseExecutor {
             ")",
         );
 
-        // Process in batches to avoid large queries
         const batchSize = 1000;
         for (let i = 0; i < valueRows.length; i += batchSize) {
           const batch = valueRows.slice(i, i + batchSize);

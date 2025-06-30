@@ -16,9 +16,9 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "vitest",
+    "test": "vitest run",
     "e2e": "vitest run --config vitest.e2e.config.ts",
-    "test:watch": "vitest --watch",
+    "test:watch": "vitest",
     "format": "biome format --write .",
     "lint": "biome lint .",
     "typecheck": "tsc --noEmit",

@@ -1,14 +1,15 @@
-import { readFile } from "fs/promises";
+import { readFile } from "node:fs/promises";
 import { parse } from "papaparse";
-import type {
-  FileReader,
-  ParseOptions,
-  ParsedData,
-} from "../interfaces/index.js";
+import type { ParseOptions, ParsedData } from "../interfaces/index.js";
 import { FileParseError } from "../errors/index.js";
 
-export class CsvFileReader implements FileReader {
-  async readCSV(
+export interface FileRepository {
+  readCsv(filePath: string, options?: ParseOptions): Promise<ParsedData>;
+  readTableOrdering(filePath: string): Promise<string[]>;
+}
+
+export class CsvFileRepository implements FileRepository {
+  async readCsv(
     filePath: string,
     options: ParseOptions = {},
   ): Promise<ParsedData> {

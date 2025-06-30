@@ -1,10 +1,13 @@
 import type {
-  DataTransformer,
   ParsedData,
   TableSchema,
   TransformedData,
 } from "../interfaces/index.js";
 import { DataTransformError } from "../errors/index.js";
+
+export interface DataTransformer {
+  transform(data: ParsedData, schema: TableSchema): Promise<TransformedData>;
+}
 
 export class DefaultDataTransformer implements DataTransformer {
   private nullValue: string;
@@ -20,7 +23,11 @@ export class DefaultDataTransformer implements DataTransformer {
     try {
       const { headers, rows } = data;
 
-      if (headers.length === 0 && rows.length > 0) {
+      if (
+        headers.length === 0 &&
+        rows.length > 0 &&
+        schema.columns.length === 0
+      ) {
         throw new Error("No headers found but data rows exist");
       }
 
