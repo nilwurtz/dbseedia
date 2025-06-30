@@ -1,0 +1,45 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":automergeDigest",
+    ":automergePatch",
+    ":automergeMinor"
+  ],
+  "schedule": ["before 6am on monday"],
+  "timezone": "Asia/Tokyo",
+  "labels": ["dependencies"],
+  "assigneesFromCodeOwners": true,
+  "reviewersFromCodeOwners": true,
+  "packageRules": [
+    {
+      "matchDepTypes": ["devDependencies"],
+      "automerge": true
+    },
+    {
+      "matchPackageNames": ["@types/*"],
+      "automerge": true
+    },
+    {
+      "matchPackageNames": ["typescript"],
+      "groupName": "TypeScript"
+    },
+    {
+      "matchPackageNames": ["@biomejs/biome"],
+      "groupName": "Biome"
+    },
+    {
+      "matchPackageNames": ["vitest", "@vitest/*"],
+      "groupName": "Vitest"
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 6am on monday"]
+  }
+}
