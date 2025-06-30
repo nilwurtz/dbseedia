@@ -12,6 +12,8 @@ export class PostgresTestContainer {
   private readonly password = "testpass";
 
   async start(): Promise<ConnectionConfig> {
+    console.log("[TestContainer] Starting PostgreSQL container...");
+
     this.container = await new GenericContainer(this.image)
       .withEnvironment({
         POSTGRES_DB: this.database,
@@ -30,6 +32,8 @@ export class PostgresTestContainer {
     const host = this.container.getHost();
     const port = this.container.getMappedPort(5432);
 
+    console.log(`[TestContainer] PostgreSQL container started successfully at ${host}:${port}`);
+
     return {
       host,
       port,
@@ -42,8 +46,10 @@ export class PostgresTestContainer {
 
   async stop(): Promise<void> {
     if (this.container) {
+      console.log("[TestContainer] Stopping PostgreSQL container...");
       await this.container.stop();
       this.container = null;
+      console.log("[TestContainer] PostgreSQL container stopped successfully");
     }
   }
 
@@ -51,6 +57,8 @@ export class PostgresTestContainer {
     if (!this.container) {
       throw new Error("Container not started");
     }
+
+    console.log(`[TestContainer] Executing query: ${query}`);
 
     const result = await this.container.exec([
       "psql",
@@ -64,20 +72,40 @@ export class PostgresTestContainer {
       "-A", // unaligned
     ]);
 
-    return result.output.split("\n").filter((line) => line.trim());
+    console.log(`[TestContainer] Query exit code: ${result.exitCode}`);
+    console.log(`[TestContainer] Query output: ${result.output}`);
+
+    if (result.exitCode !== 0) {
+      console.error(`[TestContainer] Query failed with exit code ${result.exitCode}`);
+      console.error(`[TestContainer] Error output: ${result.output}`);
+    }
+
+    const output = result.output.trim();
+
+    if (!output) {
+      console.warn("[TestContainer] No output from query");
+      return [];
+    }
+    console.log(`[TestContainer] Query output: ${output}`);
+
+    return output.split("\n").filter((line) => line.trim());
   }
 
   async createTable(tableName: string, columns: Array<{ name: string; type: string }>): Promise<void> {
     const columnDefs = columns.map((col) => `${col.name} ${col.type}`).join(", ");
     const createTableQuery = `CREATE TABLE IF NOT EXISTS ${tableName} (${columnDefs});`;
 
+    console.log(`[TestContainer] Creating table: ${tableName}`);
     await this.executeQuery(createTableQuery);
+    console.log(`[TestContainer] Table ${tableName} created successfully`);
   }
 
   async resetDatabase(): Promise<void> {
     if (!this.container) {
       throw new Error("Container not started");
     }
+
+    console.log("[TestContainer] Resetting database schema...");
 
     const currentDir = dirname(fileURLToPath(import.meta.url));
     const schemaDir = join(currentDir, "..", "schema");
@@ -94,14 +122,10 @@ export class PostgresTestContainer {
     await schemaLoader.connect();
     try {
       await schemaLoader.loadSchemaFromDirectory(schemaDir);
+      console.log("[TestContainer] Database schema reset completed");
     } finally {
       await schemaLoader.disconnect();
     }
-  }
-
-  async setupTestTables(): Promise<void> {
-    // Schema setup is now handled by resetDatabase() using SQL files
-    // This method is kept for backward compatibility but does nothing
   }
 
   async copyDataFromCSV(tableName: string, csvPath: string): Promise<void> {
@@ -109,9 +133,21 @@ export class PostgresTestContainer {
       throw new Error("Container not started");
     }
 
+    console.log(`[TestContainer] Copying data from CSV: ${csvPath} to table: ${tableName}`);
+
     const copyCommand = `\\copy ${tableName} FROM '${csvPath}' DELIMITER ',' CSV HEADER`;
 
-    await this.container.exec(["psql", "-U", this.username, "-d", this.database, "-c", copyCommand]);
+    const result = await this.container.exec(["psql", "-U", this.username, "-d", this.database, "-c", copyCommand]);
+
+    console.log(`[TestContainer] CSV copy exit code: ${result.exitCode}`);
+    console.log(`[TestContainer] CSV copy output: ${result.output}`);
+
+    if (result.exitCode !== 0) {
+      console.error(`[TestContainer] CSV copy failed with exit code ${result.exitCode}`);
+      console.error(`[TestContainer] Error output: ${result.output}`);
+    } else {
+      console.log(`[TestContainer] Successfully copied data from ${csvPath} to ${tableName}`);
+    }
   }
 
   async copyDataFromTSV(tableName: string, tsvPath: string): Promise<void> {
@@ -119,8 +155,20 @@ export class PostgresTestContainer {
       throw new Error("Container not started");
     }
 
+    console.log(`[TestContainer] Copying data from TSV: ${tsvPath} to table: ${tableName}`);
+
     const copyCommand = `\\copy ${tableName} FROM '${tsvPath}' DELIMITER E'\\t' CSV HEADER`;
 
-    await this.container.exec(["psql", "-U", this.username, "-d", this.database, "-c", copyCommand]);
+    const result = await this.container.exec(["psql", "-U", this.username, "-d", this.database, "-c", copyCommand]);
+
+    console.log(`[TestContainer] TSV copy exit code: ${result.exitCode}`);
+    console.log(`[TestContainer] TSV copy output: ${result.output}`);
+
+    if (result.exitCode !== 0) {
+      console.error(`[TestContainer] TSV copy failed with exit code ${result.exitCode}`);
+      console.error(`[TestContainer] Error output: ${result.output}`);
+    } else {
+      console.log(`[TestContainer] Successfully copied data from ${tsvPath} to ${tableName}`);
+    }
   }
 }

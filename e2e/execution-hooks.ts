@@ -38,7 +38,6 @@ export function setupE2EHooks(strategy: LoadStrategy = "truncate") {
   beforeEach(async () => {
     if (testContainer) {
       await testContainer.resetDatabase();
-      await testContainer.setupTestTables();
     }
   });
 
