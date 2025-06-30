@@ -121,13 +121,6 @@ describe("DbSeedieコアクラス", () => {
       expect(newInstance).toBeInstanceOf(DbSeedia);
     });
 
-    it("異なるテーブルで新インスタンスを作成できること", () => {
-      const newInstance = dbSeedia.withTables(["users", "posts"]);
-
-      expect(newInstance).not.toBe(dbSeedia);
-      expect(newInstance).toBeInstanceOf(DbSeedia);
-    });
-
     it("異なる接続で新インスタンスを作成できること", () => {
       const newConnection = {
         host: "new-host",

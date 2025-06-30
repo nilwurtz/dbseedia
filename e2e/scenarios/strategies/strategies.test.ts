@@ -25,12 +25,16 @@ describe("ロード戦略機能", () => {
     });
 
     await fluentDbSeedia.connect();
-    await fluentDbSeedia.loadFrom("./e2e/scenarios/strategies/fixtures", {
-      tables: ["users"],
-    });
+    await fluentDbSeedia.loadFrom("./e2e/scenarios/strategies/fixtures");
     await fluentDbSeedia.disconnect();
 
     const userCount = await getContext().testContainer.executeQuery("SELECT COUNT(*) FROM users");
     expect(parseInt(userCount[0])).toBe(3);
+
+    const postCount = await getContext().testContainer.executeQuery("SELECT COUNT(*) FROM posts");
+    expect(parseInt(postCount[0])).toBe(3);
+
+    const commentCount = await getContext().testContainer.executeQuery("SELECT COUNT(*) FROM comments");
+    expect(parseInt(commentCount[0])).toBe(3);
   });
 });

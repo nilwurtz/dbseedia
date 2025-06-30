@@ -20,7 +20,6 @@ export interface DbSeediaConfig {
 
 export interface LoadOptions {
   target?: string;
-  tables?: string[];
   strategy?: "truncate" | "delete";
 }
 

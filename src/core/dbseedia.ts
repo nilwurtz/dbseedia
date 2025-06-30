@@ -73,13 +73,12 @@ export class DbSeedia {
 
     try {
       const tableOrdering = await this.getTableOrdering(directory);
-      const tablesToLoad = options.tables || tableOrdering;
 
-      if (tablesToLoad.length === 0) {
-        throw new FileParseError(`No tables specified to load from directory: ${directory}`);
+      if (tableOrdering.length === 0) {
+        throw new FileParseError(`No tables specified in table-ordering.txt in directory: ${directory}`);
       }
 
-      for (const tableName of tablesToLoad) {
+      for (const tableName of tableOrdering) {
         await this.loadTable(directory, tableName, executor, strategy);
       }
     } catch (error) {
@@ -161,10 +160,6 @@ export class DbSeedia {
 
   withOptions(options: Partial<DbSeediaConfig>): DbSeedia {
     return new DbSeedia({ ...this.config, ...options });
-  }
-
-  withTables(tables: string[]): DbSeedia {
-    return new DbSeedia({ ...this.config, tables });
   }
 
   withConnection(connection: ConnectionConfig): DbSeedia {

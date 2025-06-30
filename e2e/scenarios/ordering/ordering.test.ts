@@ -28,17 +28,12 @@ describe("テーブル読み込み順序機能", () => {
     await dbSeedia.connect();
 
     try {
-      // 外部キー制約違反を確実に発生させるため、projectsテーブルのみロードを試行
-      // projectsはemployeesテーブルのlead_employee_idを参照するが、employeesテーブルが空のためエラーになる
-      await dbSeedia.loadFrom("./e2e/scenarios/ordering/fixtures-fk-test-wrong-order", {
-        tables: ["projects"],
-      });
+      // 外部キー制約違反を確実に発生させるため、間違った順序で定義されたfixtureを使用
+      // projectsはemployeesテーブルのlead_employee_idを参照するが、employees前にprojectsがロードされるためエラーになる
+      await dbSeedia.loadFrom("./e2e/scenarios/ordering/fixtures-fk-test-wrong-order");
 
-      // データがロードされているか確認（外部キー制約エラーの場合は0になるはず）
-      const projectCount = await getContext().testContainer.executeQuery("SELECT COUNT(*) FROM projects");
-
-      // もしここまで到達した場合、外部キー制約が正しく適用されていない
-      expect(parseInt(projectCount[0])).toBe(0); // データがロードされていないことを期待
+      // ここまで到達すると外部キー制約が正しく適用されていない
+      throw new Error("Expected foreign key constraint error did not occur");
     } catch (error) {
       // 外部キー制約エラーが発生することを確認
       expect(error).toBeInstanceOf(Error);
