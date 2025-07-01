@@ -60,12 +60,14 @@ describe("DbSeedieコアクラス", () => {
             host: "localhost",
             database: "main_db",
             username: "user1",
+            password: "pass1",
           },
           {
             name: "analytics",
             host: "analytics-host",
             database: "analytics_db",
             username: "user2",
+            password: "pass2",
           },
         ],
       };
@@ -126,6 +128,7 @@ describe("DbSeedieコアクラス", () => {
         host: "new-host",
         database: "new_db",
         username: "new_user",
+        password: "new_pass",
       };
 
       const newInstance = dbSeedia.withConnection(newConnection);

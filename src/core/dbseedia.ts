@@ -11,17 +11,20 @@ import type {
 import { PostgresDbRepository } from "../repository/db.js";
 import { CsvFileRepository } from "../repository/file.js";
 import { DefaultDataTransformer } from "../services/data-transformer.js";
+import { TableFileLocator, type TableFileLocatorInterface } from "../services/table-file-locator.js";
 
 export class DbSeedia {
   private config: DbSeediaConfig;
   private executors: Map<string, PostgresDbRepository> = new Map();
   private fileRepository: CsvFileRepository;
   private dataTransformer: DefaultDataTransformer;
+  private tableFileLocator: TableFileLocatorInterface;
 
   constructor(config: DbSeediaConfig) {
     this.config = this.validateConfig(config);
     this.fileRepository = new CsvFileRepository();
     this.dataTransformer = new DefaultDataTransformer(config.nullValue);
+    this.tableFileLocator = new TableFileLocator();
     this.initializeExecutors();
   }
 
@@ -122,33 +125,15 @@ export class DbSeedia {
     executor: PostgresDbRepository,
     strategy: LoadStrategy,
   ): Promise<void> {
-    const csvFile = join(directory, `${tableName}.csv`);
-    const tsvFile = join(directory, `${tableName}.tsv`);
-
-    let filePath: string;
-    let separator: string;
-
-    try {
-      await import("node:fs").then((fs) => fs.promises.access(csvFile));
-      filePath = csvFile;
-      separator = ",";
-    } catch {
-      try {
-        await import("node:fs").then((fs) => fs.promises.access(tsvFile));
-        filePath = tsvFile;
-        separator = "\t";
-      } catch {
-        throw new FileNotFoundError(`No data file (CSV or TSV) found for table: ${tableName}`);
-      }
-    }
+    const tableFileInfo = await this.tableFileLocator.locateTableFile(directory, tableName);
 
     const parseOptions: ParseOptions = {
-      separator: separator,
+      separator: tableFileInfo.separator,
       encoding: this.config.encoding || "utf8",
       header: true,
     };
 
-    const parsedData = await this.fileRepository.readCsv(filePath, parseOptions);
+    const parsedData = await this.fileRepository.readCsv(tableFileInfo.filePath, parseOptions);
 
     const schema: TableSchema = {
       name: tableName,
