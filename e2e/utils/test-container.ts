@@ -10,6 +10,7 @@ export class PostgresTestContainer {
 
   private container: StartedTestContainer | null = null;
   private connectionConfig: ConnectionConfig | null = null;
+  private schemaInitialized: boolean = false;
   private readonly image = "postgres:16-alpine";
   private readonly database = "testdb";
   private readonly username = "testuser";
@@ -119,12 +120,17 @@ export class PostgresTestContainer {
     console.log(`[TestContainer] Table ${tableName} created successfully`);
   }
 
-  async resetDatabase(): Promise<void> {
+  async initializeSchema(): Promise<void> {
     if (!this.container) {
       throw new Error("Container not started");
     }
 
-    console.log("[TestContainer] Resetting database schema...");
+    if (this.schemaInitialized) {
+      console.log("[TestContainer] Schema already initialized, skipping");
+      return;
+    }
+
+    console.log("[TestContainer] Initializing database schema...");
 
     const currentDir = dirname(fileURLToPath(import.meta.url));
     const schemaDir = join(currentDir, "..", "schema");
@@ -141,10 +147,42 @@ export class PostgresTestContainer {
     await schemaLoader.connect();
     try {
       await schemaLoader.loadSchemaFromDirectory(schemaDir);
-      console.log("[TestContainer] Database schema reset completed");
+      this.schemaInitialized = true;
+      console.log("[TestContainer] Database schema initialization completed");
     } finally {
       await schemaLoader.disconnect();
     }
+  }
+
+  async truncateTables(): Promise<void> {
+    if (!this.container) {
+      throw new Error("Container not started");
+    }
+
+    console.log("[TestContainer] Truncating all tables...");
+
+    const result = await this.container.exec([
+      "psql",
+      "-U",
+      this.username,
+      "-d",
+      this.database,
+      "-c",
+      "TRUNCATE TABLE users, posts, comments, tags, departments, employees, projects RESTART IDENTITY CASCADE",
+      "-q", // quiet mode
+    ]);
+
+    if (result.exitCode !== 0) {
+      console.error(`[TestContainer] Truncate failed with exit code ${result.exitCode}`);
+      console.error(`[TestContainer] Error output: ${result.output}`);
+    } else {
+      console.log("[TestContainer] All tables truncated successfully");
+    }
+  }
+
+  async resetDatabase(): Promise<void> {
+    await this.initializeSchema();
+    await this.truncateTables();
   }
 
   async copyDataFromCSV(tableName: string, csvPath: string): Promise<void> {

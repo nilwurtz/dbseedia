@@ -19,6 +19,9 @@ export function setupE2EHooks(strategy: LoadStrategy = "truncate") {
     testContainer = PostgresTestContainer.getMainInstance();
     connectionConfig = await testContainer.start();
 
+    // スキーマを1度だけ初期化
+    await testContainer.initializeSchema();
+
     dbSeedia = new DbSeedia({
       connection: connectionConfig,
       strategy: strategy,
@@ -36,7 +39,8 @@ export function setupE2EHooks(strategy: LoadStrategy = "truncate") {
 
   beforeEach(async () => {
     if (testContainer) {
-      await testContainer.resetDatabase();
+      // テーブルのクリアのみ実行（スキーマ再作成はしない）
+      await testContainer.truncateTables();
     }
   });
 

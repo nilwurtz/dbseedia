@@ -18,6 +18,10 @@ describe("マルチデータベース機能", () => {
     analyticsContainer = PostgresTestContainer.getAnalyticsInstance();
     analyticsConnectionConfig = await analyticsContainer.start();
 
+    // 両方のコンテナでスキーマを1度だけ初期化
+    await mainContainer.initializeSchema();
+    await analyticsContainer.initializeSchema();
+
     // マルチデータベース設定でDbSeedaを初期化
     // 最初の接続にnameを指定しないことで、自動的に"default"になる
     multiDbSeedia = new DbSeedia({
@@ -45,10 +49,10 @@ describe("マルチデータベース機能", () => {
 
   beforeEach(async () => {
     if (mainContainer) {
-      await mainContainer.resetDatabase();
+      await mainContainer.truncateTables();
     }
     if (analyticsContainer) {
-      await analyticsContainer.resetDatabase();
+      await analyticsContainer.truncateTables();
     }
   });
 
@@ -95,12 +99,12 @@ describe("マルチデータベース機能", () => {
     const mainPostCount = await mainContainer.executeQuery("SELECT COUNT(*) FROM posts");
     expect(parseInt(mainPostCount[0])).toBe(3);
 
-    // アナリティクスデータベースには前のテストでロードされたデータがある
+    // アナリティクスデータベースにはデータが存在しないことを確認（独立したテスト）
     const analyticsUserCount = await analyticsContainer.executeQuery("SELECT COUNT(*) FROM users");
-    expect(parseInt(analyticsUserCount[0])).toBe(3);
+    expect(parseInt(analyticsUserCount[0])).toBe(0);
 
     const analyticsPostCount = await analyticsContainer.executeQuery("SELECT COUNT(*) FROM posts");
-    expect(parseInt(analyticsPostCount[0])).toBe(3);
+    expect(parseInt(analyticsPostCount[0])).toBe(0);
   });
 
   it("両方のデータベースに順次データをロードできること", async () => {
@@ -145,9 +149,9 @@ describe("マルチデータベース機能", () => {
     const mainUserCount = await mainContainer.executeQuery("SELECT COUNT(*) FROM users");
     expect(parseInt(mainUserCount[0])).toBe(3);
 
-    // アナリティクスデータベースには前のテストでロードされたデータがまだある
+    // アナリティクスデータベースにはデータが存在しないことを確認（独立したテスト）
     const analyticsUserCount = await analyticsContainer.executeQuery("SELECT COUNT(*) FROM users");
-    expect(parseInt(analyticsUserCount[0])).toBe(3);
+    expect(parseInt(analyticsUserCount[0])).toBe(0);
   });
 
   it("フルエントインターフェースでマルチデータベースを使用できること", async () => {
