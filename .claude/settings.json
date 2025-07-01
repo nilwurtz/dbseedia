@@ -21,7 +21,7 @@
           },
           {
             "type": "command",
-            "command": "say -v Zoe 'Completed!' -r 10"
+            "command": "say -v Zoe 'My task has been completed!'"
           }
         ]
       }
