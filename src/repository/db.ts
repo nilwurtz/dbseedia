@@ -7,6 +7,7 @@ export interface DbRepository {
   disconnect(): Promise<void>;
   execute(tableName: string, data: TransformedData, strategy: LoadStrategy): Promise<void>;
   truncateTable(tableName: string): Promise<void>;
+  deleteTableData(tableName: string): Promise<void>;
   executeSQL(sql: string): Promise<void>;
 }
 
@@ -54,6 +55,8 @@ export class PostgresDbRepository implements DbRepository {
       await this.sql.begin(async (sql) => {
         if (strategy === "truncate") {
           await this.truncateTable(tableName);
+        } else if (strategy === "delete") {
+          await this.deleteTableData(tableName);
         }
 
         if (data.values.length === 0) {
@@ -92,6 +95,21 @@ export class PostgresDbRepository implements DbRepository {
       await this.sql.unsafe(`TRUNCATE TABLE ${tableName} RESTART IDENTITY CASCADE`);
     } catch (error) {
       throw new DatabaseError(`Failed to truncate table '${tableName}': ${(error as Error).message}`, error as Error);
+    }
+  }
+
+  async deleteTableData(tableName: string): Promise<void> {
+    if (!this.sql) {
+      throw new DatabaseError("Database connection not established");
+    }
+
+    try {
+      await this.sql.unsafe(`DELETE FROM ${tableName}`);
+    } catch (error) {
+      throw new DatabaseError(
+        `Failed to delete data from table '${tableName}': ${(error as Error).message}`,
+        error as Error,
+      );
     }
   }
 

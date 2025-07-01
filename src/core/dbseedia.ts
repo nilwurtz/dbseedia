@@ -51,9 +51,12 @@ export class DbSeedia {
   private initializeExecutors(): void {
     const connections = Array.isArray(this.config.connection) ? this.config.connection : [this.config.connection];
 
-    for (const conn of connections) {
-      const name = conn.name || "default";
-      this.executors.set(name, new PostgresDbRepository(conn));
+    for (let i = 0; i < connections.length; i++) {
+      const conn = connections[i];
+      if (conn) {
+        const name = conn.name || (i === 0 ? "default" : `connection_${i}`);
+        this.executors.set(name, new PostgresDbRepository(conn));
+      }
     }
   }
 

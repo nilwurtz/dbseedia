@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS posts (
 CREATE TABLE IF NOT EXISTS comments (
     id SERIAL PRIMARY KEY,
     post_id INTEGER,
+    user_id INTEGER,
     author_name VARCHAR(255),
     content TEXT,
     created_at TIMESTAMP
