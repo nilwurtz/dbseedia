@@ -1,10 +1,10 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { PostgreSqlContainer } from '@testcontainers/postgresql';
+import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import { DbSeedia, type DbSeediaConfig } from 'dbseedia';
 import postgres from 'postgres';
 
 describe('DbSeedia Basic Usage', () => {
-  let container: PostgreSqlContainer;
+  let container: StartedPostgreSqlContainer;
   let sql: ReturnType<typeof postgres>;
   let config: DbSeediaConfig;
   let dbSeedia: DbSeedia;
@@ -53,7 +53,7 @@ describe('DbSeedia Basic Usage', () => {
     config = {
       connection: {
         host: container.getHost(),
-        port: container.getFirstMappedPort(),
+        port: container.getPort(),
         database: 'test_db',
         username: 'testuser',
         password: 'testpass',

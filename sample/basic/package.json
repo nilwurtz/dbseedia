@@ -11,10 +11,10 @@
     "dbseedia": "^0.0.2"
   },
   "devDependencies": {
-    "@testcontainers/postgresql": "^10.18.0",
-    "@types/node": "^22.9.3",
-    "testcontainers": "^10.18.0",
-    "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "@testcontainers/postgresql": "^11.0.3",
+    "@types/node": "^24.0.8",
+    "testcontainers": "^11.0.3",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
   }
 }
