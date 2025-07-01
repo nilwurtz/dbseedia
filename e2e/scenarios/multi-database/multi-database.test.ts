@@ -11,12 +11,11 @@ describe("マルチデータベース機能", () => {
   let multiDbSeedia: DbSeedia;
 
   beforeAll(async () => {
-    // メインデータベースコンテナの起動
-    mainContainer = new PostgresTestContainer();
+    // シングルトンコンテナを使用
+    mainContainer = PostgresTestContainer.getMainInstance();
     mainConnectionConfig = await mainContainer.start();
 
-    // アナリティクスデータベースコンテナの起動
-    analyticsContainer = new PostgresTestContainer();
+    analyticsContainer = PostgresTestContainer.getAnalyticsInstance();
     analyticsConnectionConfig = await analyticsContainer.start();
 
     // マルチデータベース設定でDbSeedaを初期化
@@ -41,12 +40,7 @@ describe("マルチデータベース機能", () => {
     if (multiDbSeedia) {
       await multiDbSeedia.disconnect();
     }
-    if (mainContainer) {
-      await mainContainer.stop();
-    }
-    if (analyticsContainer) {
-      await analyticsContainer.stop();
-    }
+    // コンテナは停止しない（他のテストで再利用）
   });
 
   beforeEach(async () => {

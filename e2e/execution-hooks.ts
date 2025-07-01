@@ -15,7 +15,8 @@ export function setupE2EHooks(strategy: LoadStrategy = "truncate") {
   let dbSeedia: DbSeedia;
 
   beforeAll(async () => {
-    testContainer = new PostgresTestContainer();
+    // シングルトンコンテナを使用
+    testContainer = PostgresTestContainer.getMainInstance();
     connectionConfig = await testContainer.start();
 
     dbSeedia = new DbSeedia({
@@ -30,9 +31,7 @@ export function setupE2EHooks(strategy: LoadStrategy = "truncate") {
     if (dbSeedia) {
       await dbSeedia.disconnect();
     }
-    if (testContainer) {
-      await testContainer.stop();
-    }
+    // コンテナは停止しない（他のテストで再利用）
   });
 
   beforeEach(async () => {

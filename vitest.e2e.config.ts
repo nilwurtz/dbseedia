@@ -9,5 +9,6 @@ export default defineConfig({
     hookTimeout: 60000, // Longer timeout for setup/teardown
     setupFiles: [],
     teardownTimeout: 30000,
+    maxConcurrency: 1, // コンテナ共有のため順次実行
   },
 });

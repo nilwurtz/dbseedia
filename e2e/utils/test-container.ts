@@ -5,13 +5,37 @@ import type { ConnectionConfig } from "../../src/interfaces/index.js";
 import { SchemaLoader } from "./schema-loader.js";
 
 export class PostgresTestContainer {
+  private static mainInstance: PostgresTestContainer | null = null;
+  private static analyticsInstance: PostgresTestContainer | null = null;
+
   private container: StartedTestContainer | null = null;
+  private connectionConfig: ConnectionConfig | null = null;
   private readonly image = "postgres:16-alpine";
   private readonly database = "testdb";
   private readonly username = "testuser";
   private readonly password = "testpass";
 
+  static getMainInstance(): PostgresTestContainer {
+    if (!PostgresTestContainer.mainInstance) {
+      PostgresTestContainer.mainInstance = new PostgresTestContainer();
+    }
+    return PostgresTestContainer.mainInstance;
+  }
+
+  static getAnalyticsInstance(): PostgresTestContainer {
+    if (!PostgresTestContainer.analyticsInstance) {
+      PostgresTestContainer.analyticsInstance = new PostgresTestContainer();
+    }
+    return PostgresTestContainer.analyticsInstance;
+  }
+
   async start(): Promise<ConnectionConfig> {
+    // 既に起動済みの場合は既存の接続設定を返す
+    if (this.container && this.connectionConfig) {
+      console.log("[TestContainer] Container already started, reusing existing connection");
+      return this.connectionConfig;
+    }
+
     console.log("[TestContainer] Starting PostgreSQL container...");
 
     this.container = await new GenericContainer(this.image)
@@ -32,9 +56,7 @@ export class PostgresTestContainer {
     const host = this.container.getHost();
     const port = this.container.getMappedPort(5432);
 
-    console.log(`[TestContainer] PostgreSQL container started successfully at ${host}:${port}`);
-
-    return {
+    this.connectionConfig = {
       host,
       port,
       database: this.database,
@@ -42,6 +64,10 @@ export class PostgresTestContainer {
       password: this.password,
       ssl: false,
     };
+
+    console.log(`[TestContainer] PostgreSQL container started successfully at ${host}:${port}`);
+
+    return this.connectionConfig;
   }
 
   async stop(): Promise<void> {
