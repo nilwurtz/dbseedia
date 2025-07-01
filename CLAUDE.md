@@ -1,72 +1,83 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+このファイルは、このリポジトリでの作業時にClaude Code (claude.ai/code) にガイダンスを提供します。
 
-## Project Overview
+## プロジェクト概要
 
-**dbseedia** is a database test data loader library similar to dbUnit, designed for high-performance data loading using PostgreSQL's COPY FROM command. The project provides both a core library and planned CLI tool for loading CSV/TSV test data with table ordering support.
+**dbseedia** は、dbUnitに似たデータベーステストデータローダーライブラリで、PostgreSQLのCOPY FROMコマンドを使用した高性能データロードのために設計されています。このプロジェクトは、テーブル順序付けサポートを持つCSV/TSVテストデータをロードするためのコアライブラリを提供します。
 
-## Architecture
+## 現在の状況（2025年1月）
 
-### Core Design Pattern
+### プロジェクト状態
+- **バージョン**: 0.0.2（NPMで公開済み）
+- **開発フェーズ**: Phase 1完了、実用可能な状態
+- **NPMパッケージ**: `dbseedia` として公開中
+- **サンプル実装**: `sample/basic/` で動作確認済み
 
-The project follows a layered architecture with three main components:
+### テスト状況
+- **ユニットテスト**: 47テスト全てパス
+- **E2Eテスト**: 全シナリオ動作確認済み
+- **サンプルテスト**: TypeScript + Testcontainersで正常動作
 
-- **CLI Tool**: Command parser and user interface
-- **Core Library**: DbSeedia core with business logic
-- **Database Executor**: PostgreSQL connection and COPY operations
+## アーキテクチャ
 
-### Key Interfaces
+### コア設計パターン
 
-- `FileReader`: Handles CSV/TSV parsing and table-ordering.txt
-- `DataTransformer`: Converts parsed data to database format
-- `DatabaseExecutor`: Manages database connections and COPY operations
-- `DbSeedia`: Main API class with fluent interface
+プロジェクトは3つの主要コンポーネントを持つ階層アーキテクチャに従います：
 
-## Technology Stack
+- **コアライブラリ**: DbSeedaコアとビジネスロジック
+- **データベースエグゼキュータ**: PostgreSQL接続とCOPY操作
+- **ファイルリーダー**: CSV/TSV解析とテーブル順序付け
 
-- **Language**: TypeScript with ESM modules
-- **Database**: PostgreSQL via postgres.js
-- **CSV Parsing**: papaparse
-- **Testing**: Vitest
-- **Build**: tsc
-- **Node Version**: 22.16.0 (managed via mise)
+### 主要インターフェース
 
-## Development Commands
+- `FileReader`: CSV/TSV解析とtable-ordering.txt処理
+- `DataTransformer`: 解析データのデータベース形式変換
+- `DatabaseExecutor`: データベース接続とCOPY操作管理
+- `DbSeedia`: フルエントインターフェースを持つメインAPIクラス
 
-Since the project is in initial setup phase, standard commands will be:
+## 技術スタック
+
+- **言語**: TypeScript with ESM modules
+- **データベース**: PostgreSQL via postgres.js
+- **CSV解析**: papaparse（ESMサポート対応済み）
+- **テスト**: Vitest
+- **ビルド**: tsc
+- **Node バージョン**: 22.16.0 (mise管理)
+
+## 開発コマンド
 
 ```bash
-# Environment setup
-mise install                    # Install Node.js 22.16.0
+# 環境セットアップ
+mise install                    # Node.js 22.16.0インストール
 
-# Development (when package.json exists)
-npm install                     # Install dependencies
-npm run build                   # TypeScript compilation
-npm run test                    # Run Vitest test
-npm run e2e
-npm run lint                    # ESLint checking
-npm run typecheck              # TypeScript type checking
+# 開発
+npm install                     # 依存関係インストール
+npm run build                   # TypeScriptコンパイル
+npm run test                    # Vitestユニットテスト実行
+npm run e2e                     # E2Eテスト実行
+npm run lint                    # Biomeでのリント・フォーマット
+npm run typecheck              # TypeScript型チェック
 ```
 
-## Key Features
+## 主要機能
 
-### Data Loading Strategies
+### データロード戦略
 
-- **Truncate**: Clear table before loading (default)
-- **Delete**: Delete specific records before loading
-- **Upsert**: Update or insert (future phase)
+- **Truncate**: テーブルをクリアしてからロード（デフォルト）
+- **Delete**: 特定レコードを削除してからロード
+- **Upsert**: 更新または挿入（将来の段階）
 
-### Performance Optimizations
+### パフォーマンス最適化
 
-- PostgreSQL COPY FROM for high-speed data loading
-- Batch processing (default: 1000 rows)
-- Transaction-based operations
-- Optional foreign key constraint disabling
+- PostgreSQL COPY FROMによる高速データロード
+- バッチ処理（デフォルト: 1000行）
+- トランザクションベース操作
+- 外部キー制約の一時無効化（オプション）
 
-### Multi-Database Support
+### 複数データベースサポート
 
-Supports multiple database connections with named configurations:
+名前付き設定による複数データベース接続をサポート：
 
 ```typescript
 const config = {
@@ -77,47 +88,95 @@ const config = {
 };
 ```
 
-## File Structure Expectations
+## ファイル構造
 
-### Test Data Format
+### テストデータ形式
 
 ```
 fixtures/
-├── table-ordering.txt    # Table loading order
-├── users.csv            # User data
-├── posts.tsv            # Post data (TSV format)
-└── comments.csv         # Comment data
+├── table-ordering.txt    # テーブルロード順序
+├── users.csv            # ユーザーデータ
+├── posts.tsv            # 投稿データ（TSV形式）
+└── comments.csv         # コメントデータ
 ```
 
-### Configuration
+### 設定要件
 
-- ESM modules (`"type": "module"`)
-- Node.js 20+ compatibility
-- TypeScript-first development
+- ESMモジュール (`"type": "module"`)
+- Node.js 20+ 互換性
+- TypeScriptファースト開発
 
-## Error Handling
+## エラーハンドリング
 
-Hierarchical error system:
+階層的エラーシステム：
 
-- `FileParseError`: File reading issues
-- `DataTransformError`: Data conversion problems
-- `DatabaseError`: PostgreSQL operation failures
-- `ConnectionError`: Database connection issues
-- `ValidationError`: Configuration validation
+- `FileParseError`: ファイル読み込み問題
+- `DataTransformError`: データ変換問題
+- `DatabaseError`: PostgreSQL操作失敗
+- `ConnectionError`: データベース接続問題
+- `ValidationError`: 設定検証エラー
 
-## Development Phases
+## 開発段階
 
-- **Phase 1**: Core PostgreSQL COPY FROM implementation
-- **Phase 2**: Schema validation, auto-increment handling
-- **Phase 3**: CLI tool, configuration files, advanced features
+- **Phase 1**: ✅ PostgreSQL COPY FROM実装（完了）
+- **Phase 2**: スキーマ検証、オートインクリメント処理
+- **Phase 3**: CLIツール、設定ファイル、高度な機能
 
-## Notes
+## サンプル実装
 
-- Project uses mise for Node.js version management
-- Minimal dependencies strategy
-- Focus on PostgreSQL initially (MySQL support planned)
-- Designed for high-performance test data loading scenarios
+### sample/basic/
+- TypeScript + Testcontainersを使用したBasic使用例
+- 3つのテストシナリオ：基本ロード、Truncate戦略、Fluent API
+- npm経由でdbseedia v0.0.2を使用して動作確認済み
 
-## Release Process
+## 変更履歴
 
-- vx.x.x というタグをmainにPushすると、GithubActions経由でリリースされる。これを行う場合は必ず ユーザーに確認を行う。
+プロジェクトの詳細な変更履歴は [CHANGELOG.md](./CHANGELOG.md) を参照してください。
+
+## リリースプロセス
+
+- vx.x.x というタグをmainにPushすると、GithubActions経由でリリースされる
+- これを行う場合は**必ずユーザーに確認を行う**
+- 現在のリリース状況：
+  - ✅ v0.0.1: 初回リリース（ESM問題あり）
+  - ✅ v0.0.2: papaparse ESM修正版（現在の安定版）
+
+## API使用例
+
+### 基本的な使用方法
+
+```typescript
+import { DbSeedia, type DbSeediaConfig } from 'dbseedia';
+
+const config: DbSeediaConfig = {
+  connection: {
+    host: 'localhost',
+    port: 5432,
+    database: 'test_db',
+    username: 'user',
+    password: 'pass',
+  },
+};
+
+const dbSeedia = new DbSeedia(config);
+await dbSeedia.connect();
+await dbSeedia.loadFrom('./fixtures');
+await dbSeedia.disconnect();
+```
+
+### Fluent Interface
+
+```typescript
+await new DbSeedia(config)
+  .withStrategy('truncate')
+  .connect()
+  .then(db => db.loadFrom('./fixtures'))
+  .then(db => db.disconnect());
+```
+
+## 注意事項
+
+- プロジェクトはmiseでNode.jsバージョン管理
+- 最小依存関係戦略を採用
+- PostgreSQLに特化（MySQL対応は将来予定）
+- 高性能テストデータロードシナリオ向け設計
