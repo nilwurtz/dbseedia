@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { parse } from "papaparse";
-import { FileParseError } from "../errors/index.js";
+import { FileParseError, FileNotFoundError } from "../errors/index.js";
 import type { ParsedData, ParseOptions } from "../interfaces/index.js";
 
 export interface FileRepository {
@@ -40,7 +40,11 @@ export class CsvFileRepository implements FileRepository {
         rows: dataRows,
       };
     } catch (error) {
-      throw new FileParseError(`Failed to read CSV file: ${filePath}`, error as Error);
+      const err = error as NodeJS.ErrnoException;
+      if (err.code === "ENOENT") {
+        throw new FileNotFoundError(`CSV file not found: ${filePath}`, err);
+      }
+      throw new FileParseError(`Failed to read CSV file: ${filePath}`, err);
     }
   }
 
@@ -52,7 +56,11 @@ export class CsvFileRepository implements FileRepository {
         .map((line) => line.trim())
         .filter((line) => line.length > 0 && !line.startsWith("#"));
     } catch (error) {
-      throw new FileParseError(`Failed to read table ordering file: ${filePath}`, error as Error);
+      const err = error as NodeJS.ErrnoException;
+      if (err.code === "ENOENT") {
+        throw new FileNotFoundError(`Table ordering file not found: ${filePath}`, err);
+      }
+      throw new FileParseError(`Failed to read table ordering file: ${filePath}`, err);
     }
   }
 }

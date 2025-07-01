@@ -1,7 +1,7 @@
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { FileParseError } from "../errors/index.js";
+import { FileNotFoundError } from "../errors/index.js";
 import { CsvFileRepository } from "./file.js";
 
 describe("CSVファイルリポジトリ", () => {
@@ -71,10 +71,10 @@ describe("CSVファイルリポジトリ", () => {
       expect(result.rows).toEqual([]);
     });
 
-    it("存在しないCSVファイルでFileParseErrorが投げられること", async () => {
+    it("存在しないCSVファイルでFileNotFoundErrorが投げられること", async () => {
       const nonExistentPath = join(tempDir, "non-existent.csv");
 
-      await expect(fileRepository.readCsv(nonExistentPath)).rejects.toThrow(FileParseError);
+      await expect(fileRepository.readCsv(nonExistentPath)).rejects.toThrow(FileNotFoundError);
     });
 
     it("ヘッダーと値の空白文字をトリミングできること", async () => {
@@ -110,10 +110,10 @@ describe("CSVファイルリポジトリ", () => {
       expect(result).toEqual(["users", "posts", "comments"]);
     });
 
-    it("存在しない順序ファイルでFileParseErrorが投げられること", async () => {
+    it("存在しない順序ファイルでFileNotFoundErrorが投げられること", async () => {
       const nonExistentPath = join(tempDir, "non-existent.txt");
 
-      await expect(fileRepository.readTableOrdering(nonExistentPath)).rejects.toThrow(FileParseError);
+      await expect(fileRepository.readTableOrdering(nonExistentPath)).rejects.toThrow(FileNotFoundError);
     });
 
     it("空の順序ファイルを処理できること", async () => {

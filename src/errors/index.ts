@@ -40,3 +40,9 @@ export class ValidationError extends DbSeediaError {
     super(`Validation failed: ${message}`, cause);
   }
 }
+
+export class FileNotFoundError extends DbSeediaError {
+  constructor(message: string, cause?: Error) {
+    super(`File not found: ${message}`, cause);
+  }
+}

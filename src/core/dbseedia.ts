@@ -1,5 +1,5 @@
 import { join } from "node:path";
-import { FileParseError, ValidationError } from "../errors/index.js";
+import { FileParseError, FileNotFoundError, ValidationError } from "../errors/index.js";
 import type {
   ConnectionConfig,
   DbSeediaConfig,
@@ -82,6 +82,9 @@ export class DbSeedia {
         await this.loadTable(directory, tableName, executor, strategy);
       }
     } catch (error) {
+      if (error instanceof FileNotFoundError) {
+        throw error;
+      }
       throw new FileParseError(`Failed to load data from directory: ${directory}`, error as Error);
     }
   }
@@ -103,6 +106,9 @@ export class DbSeedia {
     try {
       return await this.fileRepository.readTableOrdering(orderingFile);
     } catch (error) {
+      if (error instanceof FileNotFoundError) {
+        throw error;
+      }
       throw new FileParseError(`table-ordering.txt not found in directory: ${directory}`, error as Error);
     }
   }
@@ -129,7 +135,7 @@ export class DbSeedia {
         filePath = tsvFile;
         separator = "\t";
       } catch {
-        throw new FileParseError(`No data file found for table: ${tableName}`);
+        throw new FileNotFoundError(`No data file (CSV or TSV) found for table: ${tableName}`);
       }
     }
 
