@@ -85,7 +85,7 @@ export class PostgresTestContainer {
       throw new Error("Container not started");
     }
 
-    console.log(`[TestContainer] Executing query: ${query}`);
+    console.debug(`[TestContainer] Executing query: ${query}`);
 
     const result = await this.container.exec([
       "psql",
@@ -100,8 +100,8 @@ export class PostgresTestContainer {
       "-A", // unaligned
     ]);
 
-    console.log(`[TestContainer] Query exit code: ${result.exitCode}`);
-    console.log(`[TestContainer] Query output: \n${result.output}`);
+    console.debug(`[TestContainer] Query exit code: ${result.exitCode}`);
+    console.debug(`[TestContainer] Query output: \n${result.output}`);
 
     if (result.exitCode !== 0) {
       console.error(`[TestContainer] Query failed with exit code ${result.exitCode}`);
@@ -159,7 +159,7 @@ export class PostgresTestContainer {
       throw new Error("Container not started");
     }
 
-    console.log("[TestContainer] Truncating all tables...");
+    console.debug("[TestContainer] Truncating all tables...");
 
     const result = await this.container.exec([
       "psql",
@@ -196,8 +196,8 @@ export class PostgresTestContainer {
 
     const result = await this.container.exec(["psql", "-U", this.username, "-d", this.database, "-c", copyCommand]);
 
-    console.log(`[TestContainer] CSV copy exit code: ${result.exitCode}`);
-    console.log(`[TestContainer] CSV copy output: ${result.output}`);
+    console.debug(`[TestContainer] CSV copy exit code: ${result.exitCode}`);
+    console.debug(`[TestContainer] CSV copy output: ${result.output}`);
 
     if (result.exitCode !== 0) {
       console.error(`[TestContainer] CSV copy failed with exit code ${result.exitCode}`);
@@ -218,8 +218,8 @@ export class PostgresTestContainer {
 
     const result = await this.container.exec(["psql", "-U", this.username, "-d", this.database, "-c", copyCommand]);
 
-    console.log(`[TestContainer] TSV copy exit code: ${result.exitCode}`);
-    console.log(`[TestContainer] TSV copy output: ${result.output}`);
+    console.debug(`[TestContainer] TSV copy exit code: ${result.exitCode}`);
+    console.debug(`[TestContainer] TSV copy output: ${result.output}`);
 
     if (result.exitCode !== 0) {
       console.error(`[TestContainer] TSV copy failed with exit code ${result.exitCode}`);
