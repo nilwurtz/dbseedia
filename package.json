@@ -16,17 +16,18 @@
   },
   "scripts": {
     "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
     "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
     "check": "biome check .",
     "check:fix": "biome check --fix .",
     "e2e": "vitest run --config vitest.e2e.config.ts",
-    "test:watch": "vitest",
     "format": "biome format --write .",
     "lint": "biome lint .",
     "lint:fix": "biome lint --fix .",
-    "typecheck": "tsc --noEmit",
-    "dev": "tsc --watch",
-    "clean": "rm -rf dist"
+    "checkall": "npm run typecheck && npm run lint && npm run format && npm run check && npm test && npm run e2e"
   },
   "keywords": [
     "database",

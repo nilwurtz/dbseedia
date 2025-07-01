@@ -10,6 +10,7 @@ import type {
 } from "../interfaces/index.js";
 import { PostgresDbRepository } from "../repository/db.js";
 import { CsvFileRepository } from "../repository/file.js";
+import { type ConfigValidatorInterface, DbSeediaConfigValidator } from "../services/config-validator.js";
 import { DefaultDataTransformer } from "../services/data-transformer.js";
 import { TableFileLocator, type TableFileLocatorInterface } from "../services/table-file-locator.js";
 
@@ -19,36 +20,15 @@ export class DbSeedia {
   private fileRepository: CsvFileRepository;
   private dataTransformer: DefaultDataTransformer;
   private tableFileLocator: TableFileLocatorInterface;
+  private configValidator: ConfigValidatorInterface;
 
   constructor(config: DbSeediaConfig) {
-    this.config = this.validateConfig(config);
+    this.configValidator = new DbSeediaConfigValidator();
+    this.config = this.configValidator.validateAndApplyDefaults(config);
     this.fileRepository = new CsvFileRepository();
-    this.dataTransformer = new DefaultDataTransformer(config.nullValue);
+    this.dataTransformer = new DefaultDataTransformer(this.config.nullValue);
     this.tableFileLocator = new TableFileLocator();
     this.initializeExecutors();
-  }
-
-  private validateConfig(config: DbSeediaConfig): DbSeediaConfig {
-    if (!config.connection) {
-      throw new ValidationError("Connection configuration is required");
-    }
-
-    const connections = Array.isArray(config.connection) ? config.connection : [config.connection];
-
-    for (const conn of connections) {
-      if (!conn.host || !conn.database || !conn.username) {
-        throw new ValidationError("Host, database, and username are required for connection");
-      }
-    }
-
-    return {
-      strategy: "truncate",
-      separator: ",",
-      encoding: "utf8",
-      nullValue: "",
-      batchSize: 1000,
-      ...config,
-    };
   }
 
   private initializeExecutors(): void {
