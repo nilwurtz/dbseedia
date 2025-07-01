@@ -1,0 +1,30 @@
+{
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "say -v Zoe 'I need Help!' -r 10"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npm run format && npm run lint:fix && npm run check:fix"
+          },
+          {
+            "type": "command",
+            "command": "say -v Zoe 'Completed!' -r 10"
+          }
+        ]
+      }
+    ]
+  }
+}
