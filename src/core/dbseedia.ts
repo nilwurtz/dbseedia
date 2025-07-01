@@ -1,5 +1,5 @@
 import { join } from "node:path";
-import { FileParseError, FileNotFoundError, ValidationError } from "../errors/index.js";
+import { FileNotFoundError, FileParseError, ValidationError } from "../errors/index.js";
 import type {
   ConnectionConfig,
   DbSeediaConfig,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FileParseError, FileNotFoundError } from "../../../src/errors/index.js";
+import { FileNotFoundError, FileParseError } from "../../../src/errors/index.js";
 import { setupE2EHooks } from "../../execution-hooks.js";
 
 describe("エラーハンドリング", () => {

@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { parse } from "papaparse";
-import { FileParseError, FileNotFoundError } from "../errors/index.js";
+import { FileNotFoundError, FileParseError } from "../errors/index.js";
 import type { ParsedData, ParseOptions } from "../interfaces/index.js";
 
 export interface FileRepository {
