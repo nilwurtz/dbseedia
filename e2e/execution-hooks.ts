@@ -1,26 +1,32 @@
 import { afterAll, beforeAll, beforeEach } from "vitest";
 import { DbSeedia } from "../src/index.js";
 import type { ConnectionConfig, LoadStrategy } from "../src/interfaces/index.js";
-import { PostgresTestContainer } from "./utils/test-container.js";
+import { PostgresContainer } from "./utils/postgres-container.js";
+import { PostgresHelper } from "./utils/postgres-helper.js";
 
 export interface TestContext {
-  testContainer: PostgresTestContainer;
+  container: PostgresContainer;
+  helper: PostgresHelper;
   connectionConfig: ConnectionConfig;
   dbSeedia: DbSeedia;
 }
 
 export function setupE2EHooks(strategy: LoadStrategy = "truncate") {
-  let testContainer: PostgresTestContainer;
+  let container: PostgresContainer;
+  let helper: PostgresHelper;
   let connectionConfig: ConnectionConfig;
   let dbSeedia: DbSeedia;
 
   beforeAll(async () => {
     // シングルトンコンテナを使用
-    testContainer = PostgresTestContainer.getMainInstance();
-    connectionConfig = await testContainer.start();
+    container = PostgresContainer.getMainInstance();
+    connectionConfig = await container.start();
+
+    // PostgreSQL操作用ヘルパーを作成
+    helper = new PostgresHelper(container);
 
     // スキーマを1度だけ初期化
-    await testContainer.initializeSchema();
+    await helper.initializeSchema();
 
     dbSeedia = new DbSeedia({
       connection: connectionConfig,
@@ -38,14 +44,15 @@ export function setupE2EHooks(strategy: LoadStrategy = "truncate") {
   });
 
   beforeEach(async () => {
-    if (testContainer) {
+    if (helper) {
       // テーブルのクリアのみ実行（スキーマ再作成はしない）
-      await testContainer.truncateTables();
+      await helper.truncateTables();
     }
   });
 
   return () => ({
-    testContainer,
+    container,
+    helper,
     connectionConfig,
     dbSeedia,
   });

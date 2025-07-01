@@ -30,9 +30,9 @@ describe("テーブル読み込み順序機能", () => {
     await dbSeedia.loadFrom("./e2e/scenarios/ordering/fixtures-fk-test");
 
     // すべてのテーブルにデータが正常にロードされたことを確認
-    const deptCount = await getContext().testContainer.executeQuery("SELECT COUNT(*) FROM departments");
-    const empCount = await getContext().testContainer.executeQuery("SELECT COUNT(*) FROM employees");
-    const projCount = await getContext().testContainer.executeQuery("SELECT COUNT(*) FROM projects");
+    const deptCount = await getContext().helper.executeQuery("SELECT COUNT(*) FROM departments");
+    const empCount = await getContext().helper.executeQuery("SELECT COUNT(*) FROM employees");
+    const projCount = await getContext().helper.executeQuery("SELECT COUNT(*) FROM projects");
 
     expect(parseInt(deptCount[0])).toBe(3);
     expect(parseInt(empCount[0])).toBe(4);
