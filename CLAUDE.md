@@ -117,3 +117,7 @@ Hierarchical error system:
 - Minimal dependencies strategy
 - Focus on PostgreSQL initially (MySQL support planned)
 - Designed for high-performance test data loading scenarios
+
+## Release Process
+
+- vx.x.x というタグをmainにPushすると、GithubActions経由でリリースされる。これを行う場合は必ず ユーザーに確認を行う。
