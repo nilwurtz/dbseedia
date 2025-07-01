@@ -6,8 +6,8 @@ on:
   pull_request:
     branches: [main]
     paths-ignore:
-      - '**.md'
-      - 'renovate.json'
+      - "**.md"
+      - "renovate.json"
   workflow_dispatch:
 
 jobs:
