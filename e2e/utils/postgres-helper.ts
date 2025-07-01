@@ -1,6 +1,5 @@
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { ConnectionConfig } from "../../src/interfaces/index.js";
 import type { PostgresContainer } from "./postgres-container.js";
 import { SchemaLoader } from "./schema-loader.js";
 
