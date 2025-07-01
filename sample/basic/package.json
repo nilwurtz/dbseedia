@@ -1,0 +1,20 @@
+{
+  "name": "dbseedia-basic-sample",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "test:run": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "dbseedia": "^0.0.2"
+  },
+  "devDependencies": {
+    "@testcontainers/postgresql": "^10.18.0",
+    "@types/node": "^22.9.3",
+    "testcontainers": "^10.18.0",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

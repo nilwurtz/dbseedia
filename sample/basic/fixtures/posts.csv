@@ -1,0 +1,5 @@
+id,user_id,title,content
+1,1,First Post,This is the first post by John
+2,2,Second Post,This is the second post by Jane
+3,1,Third Post,Another post by John
+4,3,Fourth Post,First post by Bob
