@@ -39,6 +39,17 @@
   ],
   "author": "nilwurtz",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nilwurtz/dbseedia.git"
+  },
+  "homepage": "https://github.com/nilwurtz/dbseedia#readme",
+  "bugs": {
+    "url": "https://github.com/nilwurtz/dbseedia/issues"
+  },
+  "files": [
+    "dist"
+  ],
   "dependencies": {
     "papaparse": "^5.5.3",
     "postgres": "^3.4.7"
