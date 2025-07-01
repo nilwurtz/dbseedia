@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { parse } from "papaparse";
+import Papa from "papaparse";
 import { FileNotFoundError, FileParseError } from "../errors/index.js";
 import type { ParsedData, ParseOptions } from "../interfaces/index.js";
 
@@ -15,7 +15,7 @@ export class CsvFileRepository implements FileRepository {
         encoding: (options.encoding as BufferEncoding) || "utf8",
       });
 
-      const parseResult = parse(content, {
+      const parseResult = Papa.parse(content, {
         delimiter: options.separator || ",",
         header: false,
         skipEmptyLines: true,
