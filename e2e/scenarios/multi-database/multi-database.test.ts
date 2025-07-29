@@ -1,12 +1,10 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { DbSeedia } from "../../../src/index.js";
 import type { ConnectionConfig } from "../../../src/interfaces/index.js";
-import { PostgresContainer } from "../../utils/postgres-container.js";
+import { ANALYTICS_DB_CONFIG, MAIN_DB_CONFIG, MULTI_DB_CONFIGS } from "../../config/database.js";
 import { PostgresHelper } from "../../utils/postgres-helper.js";
 
 describe("マルチデータベース機能", () => {
-  let mainContainer: PostgresContainer;
-  let analyticsContainer: PostgresContainer;
   let mainHelper: PostgresHelper;
   let analyticsHelper: PostgresHelper;
   let mainConnectionConfig: ConnectionConfig;
@@ -14,33 +12,25 @@ describe("マルチデータベース機能", () => {
   let multiDbSeedia: DbSeedia;
 
   beforeAll(async () => {
-    // シングルトンコンテナを使用
-    mainContainer = PostgresContainer.getMainInstance();
-    mainConnectionConfig = await mainContainer.start();
-
-    analyticsContainer = PostgresContainer.getAnalyticsInstance();
-    analyticsConnectionConfig = await analyticsContainer.start();
+    // 共通データベース設定を使用
+    mainConnectionConfig = MAIN_DB_CONFIG;
+    analyticsConnectionConfig = ANALYTICS_DB_CONFIG;
 
     // PostgreSQL操作用ヘルパーを作成
-    mainHelper = new PostgresHelper(mainContainer);
-    analyticsHelper = new PostgresHelper(analyticsContainer);
+    mainHelper = new PostgresHelper(mainConnectionConfig);
+    analyticsHelper = new PostgresHelper(analyticsConnectionConfig);
 
-    // 両方のコンテナでスキーマを1度だけ初期化
+    await mainHelper.connect();
+    await analyticsHelper.connect();
+
+    // 両方のデータベースでスキーマを1度だけ初期化
     await mainHelper.initializeSchema();
     await analyticsHelper.initializeSchema();
 
     // マルチデータベース設定でDbSeedaを初期化
-    // 最初の接続にnameを指定しないことで、自動的に"default"になる
+    // MULTI_DB_CONFIGS を使用
     multiDbSeedia = new DbSeedia({
-      connection: [
-        {
-          ...mainConnectionConfig,
-        },
-        {
-          name: "analytics",
-          ...analyticsConnectionConfig,
-        },
-      ],
+      connection: MULTI_DB_CONFIGS,
       strategy: "truncate",
     });
 
@@ -51,7 +41,12 @@ describe("マルチデータベース機能", () => {
     if (multiDbSeedia) {
       await multiDbSeedia.disconnect();
     }
-    // コンテナは停止しない（他のテストで再利用）
+    if (mainHelper) {
+      await mainHelper.disconnect();
+    }
+    if (analyticsHelper) {
+      await analyticsHelper.disconnect();
+    }
   });
 
   beforeEach(async () => {
@@ -68,8 +63,8 @@ describe("マルチデータベース機能", () => {
     const mainResult = await mainHelper.executeQuery("SELECT 1 as test");
     const analyticsResult = await analyticsHelper.executeQuery("SELECT 1 as test");
 
-    expect(mainResult[0]).toBe("1");
-    expect(analyticsResult[0]).toBe("1");
+    expect(mainResult[0].test).toBe(1);
+    expect(analyticsResult[0].test).toBe(1);
   });
 
   it("アナリティクスデータベースにのみデータをロードできること", async () => {
@@ -80,17 +75,17 @@ describe("マルチデータベース機能", () => {
 
     // アナリティクスデータベースにデータが存在することを確認
     const analyticsUserCount = await analyticsHelper.executeQuery("SELECT COUNT(*) FROM users");
-    expect(parseInt(analyticsUserCount[0])).toBe(3);
+    expect(Number(analyticsUserCount[0].count)).toBe(3);
 
     const analyticsPostCount = await analyticsHelper.executeQuery("SELECT COUNT(*) FROM posts");
-    expect(parseInt(analyticsPostCount[0])).toBe(3);
+    expect(Number(analyticsPostCount[0].count)).toBe(3);
 
     // メインデータベースにはデータが存在しないことを確認
     const mainUserCount = await mainHelper.executeQuery("SELECT COUNT(*) FROM users");
-    expect(parseInt(mainUserCount[0])).toBe(0);
+    expect(Number(mainUserCount[0].count)).toBe(0);
 
     const mainPostCount = await mainHelper.executeQuery("SELECT COUNT(*) FROM posts");
-    expect(parseInt(mainPostCount[0])).toBe(0);
+    expect(Number(mainPostCount[0].count)).toBe(0);
   });
 
   it("メインデータベースにのみデータをロードできること", async () => {
@@ -101,17 +96,17 @@ describe("マルチデータベース機能", () => {
 
     // メインデータベースにデータが存在することを確認
     const mainUserCount = await mainHelper.executeQuery("SELECT COUNT(*) FROM users");
-    expect(parseInt(mainUserCount[0])).toBe(3);
+    expect(Number(mainUserCount[0].count)).toBe(3);
 
     const mainPostCount = await mainHelper.executeQuery("SELECT COUNT(*) FROM posts");
-    expect(parseInt(mainPostCount[0])).toBe(3);
+    expect(Number(mainPostCount[0].count)).toBe(3);
 
     // アナリティクスデータベースにはデータが存在しないことを確認（独立したテスト）
     const analyticsUserCount = await analyticsHelper.executeQuery("SELECT COUNT(*) FROM users");
-    expect(parseInt(analyticsUserCount[0])).toBe(0);
+    expect(Number(analyticsUserCount[0].count)).toBe(0);
 
     const analyticsPostCount = await analyticsHelper.executeQuery("SELECT COUNT(*) FROM posts");
-    expect(parseInt(analyticsPostCount[0])).toBe(0);
+    expect(Number(analyticsPostCount[0].count)).toBe(0);
   });
 
   it("両方のデータベースに順次データをロードできること", async () => {
@@ -127,17 +122,17 @@ describe("マルチデータベース機能", () => {
     const mainUserCount = await mainHelper.executeQuery("SELECT COUNT(*) FROM users");
     const analyticsUserCount = await analyticsHelper.executeQuery("SELECT COUNT(*) FROM users");
 
-    expect(parseInt(mainUserCount[0])).toBe(3);
-    expect(parseInt(analyticsUserCount[0])).toBe(3);
+    expect(Number(mainUserCount[0].count)).toBe(3);
+    expect(Number(analyticsUserCount[0].count)).toBe(3);
 
     // データの内容も確認
     const mainUsers = await mainHelper.executeQuery("SELECT name FROM users ORDER BY id");
     const analyticsUsers = await analyticsHelper.executeQuery("SELECT name FROM users ORDER BY id");
 
     expect(mainUsers).toEqual(analyticsUsers);
-    expect(mainUsers[0]).toBe("Alice Smith");
-    expect(mainUsers[1]).toBe("Bob Wilson");
-    expect(mainUsers[2]).toBe("Charlie Brown");
+    expect(mainUsers[0].name).toBe("Alice Smith");
+    expect(mainUsers[1].name).toBe("Bob Wilson");
+    expect(mainUsers[2].name).toBe("Charlie Brown");
   });
 
   it("存在しないターゲットを指定した場合エラーが発生すること", async () => {
@@ -154,11 +149,11 @@ describe("マルチデータベース機能", () => {
 
     // メインデータベース（最初の接続）にデータが存在することを確認
     const mainUserCount = await mainHelper.executeQuery("SELECT COUNT(*) FROM users");
-    expect(parseInt(mainUserCount[0])).toBe(3);
+    expect(Number(mainUserCount[0].count)).toBe(3);
 
     // アナリティクスデータベースにはデータが存在しないことを確認（独立したテスト）
     const analyticsUserCount = await analyticsHelper.executeQuery("SELECT COUNT(*) FROM users");
-    expect(parseInt(analyticsUserCount[0])).toBe(0);
+    expect(Number(analyticsUserCount[0].count)).toBe(0);
   });
 
   it("フルエントインターフェースでマルチデータベースを使用できること", async () => {
@@ -183,7 +178,7 @@ describe("マルチデータベース機能", () => {
     const mainUserCount = await mainHelper.executeQuery("SELECT COUNT(*) FROM users");
     const analyticsUserCount = await analyticsHelper.executeQuery("SELECT COUNT(*) FROM users");
 
-    expect(parseInt(mainUserCount[0])).toBe(3);
-    expect(parseInt(analyticsUserCount[0])).toBe(3);
+    expect(Number(mainUserCount[0].count)).toBe(3);
+    expect(Number(analyticsUserCount[0].count)).toBe(3);
   });
 });

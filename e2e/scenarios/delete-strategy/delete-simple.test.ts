@@ -10,12 +10,12 @@ describe("Delete戦略機能（シンプル）", () => {
 
     // 初期データが正しくロードされたことを確認
     let tagCount = await getContext().helper.executeQuery("SELECT COUNT(*) FROM tags");
-    expect(parseInt(tagCount[0])).toBe(4);
+    expect(Number(tagCount[0].count)).toBe(4);
 
     // 特定のタグの存在を確認
     const originalTags = await getContext().helper.executeQuery("SELECT name FROM tags ORDER BY id");
-    expect(originalTags[0]).toBe("Technology");
-    expect(originalTags[1]).toBe("Lifestyle");
+    expect(originalTags[0].name).toBe("Technology");
+    expect(originalTags[1].name).toBe("Lifestyle");
 
     // delete戦略でDbSeediaを作成し、同じデータを再ロード
     const deleteDbSeedia = getContext().dbSeedia.withStrategy("delete");
@@ -24,12 +24,12 @@ describe("Delete戦略機能（シンプル）", () => {
 
     // delete戦略では一度削除されてから同じデータがロードされるため、結果は同じになる
     tagCount = await getContext().helper.executeQuery("SELECT COUNT(*) FROM tags");
-    expect(parseInt(tagCount[0])).toBe(4);
+    expect(Number(tagCount[0].count)).toBe(4);
 
     // データの内容も同じであることを確認
     const newTags = await getContext().helper.executeQuery("SELECT name FROM tags ORDER BY id");
-    expect(newTags[0]).toBe("Technology");
-    expect(newTags[1]).toBe("Lifestyle");
+    expect(newTags[0].name).toBe("Technology");
+    expect(newTags[1].name).toBe("Lifestyle");
 
     await deleteDbSeedia.disconnect();
   });
@@ -72,14 +72,14 @@ describe("Delete戦略機能（シンプル）", () => {
 
     // データが正しくロードされたことを確認
     const tagCount = await getContext().helper.executeQuery("SELECT COUNT(*) FROM tags");
-    expect(parseInt(tagCount[0])).toBe(4);
+    expect(Number(tagCount[0].count)).toBe(4);
 
     // データの内容を確認
     const tags = await getContext().helper.executeQuery("SELECT name FROM tags ORDER BY id");
-    expect(tags[0]).toBe("Technology");
-    expect(tags[1]).toBe("Lifestyle");
-    expect(tags[2]).toBe("Business");
-    expect(tags[3]).toBe("Sports");
+    expect(tags[0].name).toBe("Technology");
+    expect(tags[1].name).toBe("Lifestyle");
+    expect(tags[2].name).toBe("Business");
+    expect(tags[3].name).toBe("Sports");
 
     await fluentDeleteDbSeedia.disconnect();
   });

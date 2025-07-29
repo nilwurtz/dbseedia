@@ -1,59 +1,51 @@
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { PostgresContainer } from "./postgres-container.js";
+import postgres from "postgres";
+import type { ConnectionConfig } from "../../src/interfaces/index.js";
 import { SchemaLoader } from "./schema-loader.js";
 
 /**
- * PostgreSQL固有の操作に専念したクラス
+ * PostgreSQL固有の操作に専念したクラス（docker-compose環境用）
  * データベースクエリ、スキーマ管理、データ操作を担当
  */
 export class PostgresHelper {
   private schemaInitialized: boolean = false;
+  private sql: postgres.Sql | null = null;
 
-  constructor(private readonly container: PostgresContainer) {}
+  constructor(private readonly config: ConnectionConfig) {}
 
-  async executeQuery(query: string): Promise<string[]> {
-    const testContainer = this.container.getContainer();
-    const config = this.container.getConnectionConfig();
+  async connect(): Promise<void> {
+    if (!this.sql) {
+      this.sql = postgres({
+        host: this.config.host,
+        port: this.config.port,
+        database: this.config.database,
+        username: this.config.username,
+        password: this.config.password,
+        ssl: this.config.ssl || false,
+      });
+    }
+  }
 
-    if (!testContainer || !config) {
-      throw new Error("Container not started");
+  async disconnect(): Promise<void> {
+    if (this.sql) {
+      await this.sql.end();
+      this.sql = null;
+    }
+  }
+
+  async executeQuery(query: string): Promise<any[]> {
+    if (!this.sql) {
+      throw new Error("Not connected to database");
     }
 
     console.debug(`[PostgresHelper] Executing query: ${query}`);
 
-    const result = await testContainer.exec([
-      "psql",
-      "-U",
-      config.username,
-      "-d",
-      config.database,
-      "-c",
-      query,
-      "--csv", // output in CSV format
-      "-t", // tuples only
-      "-A", // unaligned
-    ]);
-
-    console.debug(`[PostgresHelper] Query exit code: ${result.exitCode}`);
-    console.debug(`[PostgresHelper] Query output: \n${result.output}`);
-
-    if (result.exitCode !== 0) {
-      console.error(`[PostgresHelper] Query failed with exit code ${result.exitCode}`);
-      console.error(`[PostgresHelper] Error output: ${result.output}`);
-    }
-
-    return result.output.split("\n").filter((line) => line.trim());
+    const result = await this.sql.unsafe(query);
+    return result;
   }
 
   async initializeSchema(): Promise<void> {
-    const testContainer = this.container.getContainer();
-    const config = this.container.getConnectionConfig();
-
-    if (!testContainer || !config) {
-      throw new Error("Container not started");
-    }
-
     if (this.schemaInitialized) {
       console.log("[PostgresHelper] Schema already initialized, skipping");
       return;
@@ -64,7 +56,7 @@ export class PostgresHelper {
     const currentDir = dirname(fileURLToPath(import.meta.url));
     const schemaDir = join(currentDir, "..", "schema");
 
-    const schemaLoader = new SchemaLoader(config);
+    const schemaLoader = new SchemaLoader(this.config);
 
     await schemaLoader.connect();
     try {
@@ -77,31 +69,19 @@ export class PostgresHelper {
   }
 
   async truncateTables(): Promise<void> {
-    const testContainer = this.container.getContainer();
-    const config = this.container.getConnectionConfig();
-
-    if (!testContainer || !config) {
-      throw new Error("Container not started");
+    if (!this.sql) {
+      throw new Error("Not connected to database");
     }
 
     console.debug("[PostgresHelper] Truncating all tables...");
 
-    const result = await testContainer.exec([
-      "psql",
-      "-U",
-      config.username,
-      "-d",
-      config.database,
-      "-c",
-      "TRUNCATE TABLE users, posts, comments, tags, departments, employees, projects RESTART IDENTITY CASCADE",
-      "-q", // quiet mode
-    ]);
-
-    if (result.exitCode !== 0) {
-      console.error(`[PostgresHelper] Truncate failed with exit code ${result.exitCode}`);
-      console.error(`[PostgresHelper] Error output: ${result.output}`);
-    } else {
+    try {
+      await this
+        .sql`TRUNCATE TABLE users, posts, comments, tags, departments, employees, projects RESTART IDENTITY CASCADE`;
       console.debug("[PostgresHelper] All tables truncated successfully");
+    } catch (error) {
+      console.error("[PostgresHelper] Truncate failed:", error);
+      throw error;
     }
   }
 
@@ -111,61 +91,15 @@ export class PostgresHelper {
   }
 
   async createTable(tableName: string, columns: Array<{ name: string; type: string }>): Promise<void> {
+    if (!this.sql) {
+      throw new Error("Not connected to database");
+    }
+
     const columnDefs = columns.map((col) => `${col.name} ${col.type}`).join(", ");
     const createTableQuery = `CREATE TABLE IF NOT EXISTS ${tableName} (${columnDefs});`;
 
     console.log(`[PostgresHelper] Creating table: ${tableName}`);
-    await this.executeQuery(createTableQuery);
+    await this.sql.unsafe(createTableQuery);
     console.log(`[PostgresHelper] Table ${tableName} created successfully`);
-  }
-
-  async copyDataFromCSV(tableName: string, csvPath: string): Promise<void> {
-    const testContainer = this.container.getContainer();
-    const config = this.container.getConnectionConfig();
-
-    if (!testContainer || !config) {
-      throw new Error("Container not started");
-    }
-
-    console.log(`[PostgresHelper] Copying data from CSV: ${csvPath} to table: ${tableName}`);
-
-    const copyCommand = `\\copy ${tableName} FROM '${csvPath}' DELIMITER ',' CSV HEADER`;
-
-    const result = await testContainer.exec(["psql", "-U", config.username, "-d", config.database, "-c", copyCommand]);
-
-    console.debug(`[PostgresHelper] CSV copy exit code: ${result.exitCode}`);
-    console.debug(`[PostgresHelper] CSV copy output: ${result.output}`);
-
-    if (result.exitCode !== 0) {
-      console.error(`[PostgresHelper] CSV copy failed with exit code ${result.exitCode}`);
-      console.error(`[PostgresHelper] Error output: ${result.output}`);
-    } else {
-      console.log(`[PostgresHelper] Successfully copied data from ${csvPath} to ${tableName}`);
-    }
-  }
-
-  async copyDataFromTSV(tableName: string, tsvPath: string): Promise<void> {
-    const testContainer = this.container.getContainer();
-    const config = this.container.getConnectionConfig();
-
-    if (!testContainer || !config) {
-      throw new Error("Container not started");
-    }
-
-    console.log(`[PostgresHelper] Copying data from TSV: ${tsvPath} to table: ${tableName}`);
-
-    const copyCommand = `\\copy ${tableName} FROM '${tsvPath}' DELIMITER E'\\t' CSV HEADER`;
-
-    const result = await testContainer.exec(["psql", "-U", config.username, "-d", config.database, "-c", copyCommand]);
-
-    console.debug(`[PostgresHelper] TSV copy exit code: ${result.exitCode}`);
-    console.debug(`[PostgresHelper] TSV copy output: ${result.output}`);
-
-    if (result.exitCode !== 0) {
-      console.error(`[PostgresHelper] TSV copy failed with exit code ${result.exitCode}`);
-      console.error(`[PostgresHelper] Error output: ${result.output}`);
-    } else {
-      console.log(`[PostgresHelper] Successfully copied data from ${tsvPath} to ${tableName}`);
-    }
   }
 }

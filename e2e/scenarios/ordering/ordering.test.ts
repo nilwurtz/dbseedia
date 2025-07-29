@@ -34,8 +34,8 @@ describe("テーブル読み込み順序機能", () => {
     const empCount = await getContext().helper.executeQuery("SELECT COUNT(*) FROM employees");
     const projCount = await getContext().helper.executeQuery("SELECT COUNT(*) FROM projects");
 
-    expect(parseInt(deptCount[0])).toBe(3);
-    expect(parseInt(empCount[0])).toBe(4);
-    expect(parseInt(projCount[0])).toBe(3);
+    expect(Number(deptCount[0].count)).toBe(3);
+    expect(Number(empCount[0].count)).toBe(4);
+    expect(Number(projCount[0].count)).toBe(3);
   });
 });

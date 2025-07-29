@@ -10,5 +10,11 @@ export default defineConfig({
     setupFiles: [],
     teardownTimeout: 30000,
     maxConcurrency: 1, // コンテナ共有のため順次実行
+    pool: "forks", // プロセス分離でテストを実行
+    poolOptions: {
+      forks: {
+        singleFork: true, // 単一プロセスで全テストを順次実行
+      },
+    },
   },
 });

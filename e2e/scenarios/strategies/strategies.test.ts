@@ -8,7 +8,7 @@ describe("ロード戦略機能", () => {
     await getContext().dbSeedia.loadFrom("./e2e/scenarios/strategies/fixtures");
 
     let userCount = await getContext().helper.executeQuery("SELECT COUNT(*) FROM users");
-    expect(parseInt(userCount[0])).toBe(3);
+    expect(Number(userCount[0].count)).toBe(3);
 
     const truncateDbSeedia = getContext().dbSeedia.withStrategy("truncate");
     await truncateDbSeedia.connect();
@@ -16,7 +16,7 @@ describe("ロード戦略機能", () => {
     await truncateDbSeedia.disconnect();
 
     userCount = await getContext().helper.executeQuery("SELECT COUNT(*) FROM users");
-    expect(parseInt(userCount[0])).toBe(3);
+    expect(Number(userCount[0].count)).toBe(3);
   });
 
   it("フルエントインターフェースをサポートできること", async () => {
@@ -29,12 +29,12 @@ describe("ロード戦略機能", () => {
     await fluentDbSeedia.disconnect();
 
     const userCount = await getContext().helper.executeQuery("SELECT COUNT(*) FROM users");
-    expect(parseInt(userCount[0])).toBe(3);
+    expect(Number(userCount[0].count)).toBe(3);
 
     const postCount = await getContext().helper.executeQuery("SELECT COUNT(*) FROM posts");
-    expect(parseInt(postCount[0])).toBe(3);
+    expect(Number(postCount[0].count)).toBe(3);
 
     const commentCount = await getContext().helper.executeQuery("SELECT COUNT(*) FROM comments");
-    expect(parseInt(commentCount[0])).toBe(3);
+    expect(Number(commentCount[0].count)).toBe(3);
   });
 });

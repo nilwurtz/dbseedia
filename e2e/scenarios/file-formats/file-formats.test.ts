@@ -8,12 +8,12 @@ describe("ファイル形式機能", () => {
     await getContext().dbSeedia.loadFrom("./e2e/scenarios/file-formats/fixtures");
 
     const users = await getContext().helper.executeQuery("SELECT name, email FROM users WHERE id = 1");
-    expect(users[0]).toContain("John Doe");
-    expect(users[0]).toContain("john@example.com");
+    expect(users[0].name).toBe("John Doe");
+    expect(users[0].email).toBe("john@example.com");
 
     const posts = await getContext().helper.executeQuery("SELECT title, content FROM posts WHERE id = 1");
-    expect(posts[0]).toContain("First Post");
-    expect(posts[0]).toContain("This is the first post");
+    expect(posts[0].title).toBe("First Post");
+    expect(posts[0].content).toBe("This is the first post");
   });
 
   it("存在しないファイルを適切にエラー処理できること", async () => {

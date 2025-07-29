@@ -10,20 +10,20 @@ describe("Nullable カラム機能", () => {
 
     // 全てのレコードがロードされることを確認
     const tagCount = await getContext().helper.executeQuery("SELECT COUNT(*) FROM tags");
-    expect(parseInt(tagCount[0])).toBe(3);
+    expect(Number(tagCount[0].count)).toBe(3);
 
     // description カラムがすべてNULLになることを確認
     const nullDescriptions = await getContext().helper.executeQuery(
       "SELECT COUNT(*) FROM tags WHERE description IS NULL",
     );
-    expect(parseInt(nullDescriptions[0])).toBe(3);
+    expect(Number(nullDescriptions[0].count)).toBe(3);
 
-    // 具体的なデータを確認（パイプ区切りの文字列として返される）
+    // 具体的なデータを確認
     const tags = await getContext().helper.executeQuery("SELECT id, name, description FROM tags ORDER BY id");
     expect(tags.length).toBe(3);
-    expect(tags[0]).toBe("1|Technology|"); // descriptionがNULLの場合は末尾が空
-    expect(tags[1]).toBe("2|Lifestyle|");
-    expect(tags[2]).toBe("3|Business|");
+    expect(tags[0]).toEqual({ id: 1, name: "Technology", description: null });
+    expect(tags[1]).toEqual({ id: 2, name: "Lifestyle", description: null });
+    expect(tags[2]).toEqual({ id: 3, name: "Business", description: null });
   });
 
   it("CSVのカラムが空文字の場合、nullableなカラムにはNULLが入ること", async () => {
@@ -32,20 +32,20 @@ describe("Nullable カラム機能", () => {
 
     // 全てのレコードがロードされることを確認
     const tagCount = await getContext().helper.executeQuery("SELECT COUNT(*) FROM tags");
-    expect(parseInt(tagCount[0])).toBe(3);
+    expect(Number(tagCount[0].count)).toBe(3);
 
     // description カラムがすべてNULLになることを確認
     const nullDescriptions = await getContext().helper.executeQuery(
       "SELECT COUNT(*) FROM tags WHERE description IS NULL",
     );
-    expect(parseInt(nullDescriptions[0])).toBe(3);
+    expect(Number(nullDescriptions[0].count)).toBe(3);
 
-    // 具体的なデータを確認（パイプ区切りの文字列として返される）
+    // 具体的なデータを確認
     const tags = await getContext().helper.executeQuery("SELECT id, name, description FROM tags ORDER BY id");
     expect(tags.length).toBe(3);
-    expect(tags[0]).toBe("1|Technology|"); // descriptionがNULLの場合は末尾が空
-    expect(tags[1]).toBe("2|Lifestyle|");
-    expect(tags[2]).toBe("3|Business|");
+    expect(tags[0]).toEqual({ id: 1, name: "Technology", description: null });
+    expect(tags[1]).toEqual({ id: 2, name: "Lifestyle", description: null });
+    expect(tags[2]).toEqual({ id: 3, name: "Business", description: null });
   });
 
   it("CSVに値とnullが混在する場合、適切に処理されること", async () => {
@@ -54,25 +54,25 @@ describe("Nullable カラム機能", () => {
 
     // 全てのレコードがロードされることを確認
     const tagCount = await getContext().helper.executeQuery("SELECT COUNT(*) FROM tags");
-    expect(parseInt(tagCount[0])).toBe(4);
+    expect(Number(tagCount[0].count)).toBe(4);
 
     // null と non-null の数を確認
     const nullDescriptions = await getContext().helper.executeQuery(
       "SELECT COUNT(*) FROM tags WHERE description IS NULL",
     );
-    expect(parseInt(nullDescriptions[0])).toBe(2); // id=2,4 が空文字なのでNULL
+    expect(Number(nullDescriptions[0].count)).toBe(2); // id=2,4 が空文字なのでNULL
 
     const nonNullDescriptions = await getContext().helper.executeQuery(
       "SELECT COUNT(*) FROM tags WHERE description IS NOT NULL",
     );
-    expect(parseInt(nonNullDescriptions[0])).toBe(2); // id=1,3 に値がある
+    expect(Number(nonNullDescriptions[0].count)).toBe(2); // id=1,3 に値がある
 
-    // 具体的なデータを確認（パイプ区切りの文字列として返される）
+    // 具体的なデータを確認
     const tags = await getContext().helper.executeQuery("SELECT id, name, description FROM tags ORDER BY id");
     expect(tags.length).toBe(4);
-    expect(tags[0]).toBe("1|Technology|Tech related posts"); // 値がある場合
-    expect(tags[1]).toBe("2|Lifestyle|"); // descriptionがNULLの場合は末尾が空
-    expect(tags[2]).toBe("3|Business|Business and finance");
-    expect(tags[3]).toBe("4|Sports|"); // descriptionがNULLの場合は末尾が空
+    expect(tags[0]).toEqual({ id: 1, name: "Technology", description: "Tech related posts" }); // 値がある場合
+    expect(tags[1]).toEqual({ id: 2, name: "Lifestyle", description: null }); // descriptionがNULL
+    expect(tags[2]).toEqual({ id: 3, name: "Business", description: "Business and finance" });
+    expect(tags[3]).toEqual({ id: 4, name: "Sports", description: null }); // descriptionがNULL
   });
 });

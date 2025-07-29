@@ -36,5 +36,19 @@ jobs:
       - name: Run unit tests
         run: npm run test
 
+      - name: Start PostgreSQL services
+        run: docker-compose up -d
+
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          echo "Waiting for PostgreSQL services to be ready..."
+          timeout 60s bash -c 'until docker-compose exec -T postgres-main pg_isready -U testuser -d testdb; do sleep 2; done'
+          timeout 60s bash -c 'until docker-compose exec -T postgres-analytics pg_isready -U testuser -d analyticsdb; do sleep 2; done'
+          echo "PostgreSQL services are ready!"
+
       - name: Run E2E tests
         run: npm run e2e
+
+      - name: Stop PostgreSQL services
+        if: always()
+        run: docker-compose down

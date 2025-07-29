@@ -21,13 +21,13 @@ describe("基本ロード機能", () => {
     await getContext().dbSeedia.loadFrom("./e2e/scenarios/basic-loading/fixtures");
 
     const userCount = await getContext().helper.executeQuery("SELECT COUNT(*) FROM users");
-    expect(parseInt(userCount[0])).toBe(3);
+    expect(Number(userCount[0].count)).toBe(3);
 
     const postCount = await getContext().helper.executeQuery("SELECT COUNT(*) FROM posts");
-    expect(parseInt(postCount[0])).toBe(3);
+    expect(Number(postCount[0].count)).toBe(3);
 
     const commentCount = await getContext().helper.executeQuery("SELECT COUNT(*) FROM comments");
-    expect(parseInt(commentCount[0])).toBe(3);
+    expect(Number(commentCount[0].count)).toBe(3);
   });
 
   it("table-ordering.txtに指定されていないテーブルはCSVがあってもロードされないこと", async () => {
@@ -36,16 +36,16 @@ describe("基本ロード機能", () => {
 
     // table-ordering.txtに指定されたテーブルは正常にロードされる
     const userCount = await getContext().helper.executeQuery("SELECT COUNT(*) FROM users");
-    expect(parseInt(userCount[0])).toBe(3);
+    expect(Number(userCount[0].count)).toBe(3);
 
     const postCount = await getContext().helper.executeQuery("SELECT COUNT(*) FROM posts");
-    expect(parseInt(postCount[0])).toBe(3);
+    expect(Number(postCount[0].count)).toBe(3);
 
     const commentCount = await getContext().helper.executeQuery("SELECT COUNT(*) FROM comments");
-    expect(parseInt(commentCount[0])).toBe(3);
+    expect(Number(commentCount[0].count)).toBe(3);
 
     // table-ordering.txtに指定されていないtagsテーブルはロードされない（0件のまま）
     const tagCount = await getContext().helper.executeQuery("SELECT COUNT(*) FROM tags");
-    expect(parseInt(tagCount[0])).toBe(0);
+    expect(Number(tagCount[0].count)).toBe(0);
   });
 });

@@ -1,29 +1,27 @@
 import { afterAll, beforeAll, beforeEach } from "vitest";
 import { DbSeedia } from "../src/index.js";
 import type { ConnectionConfig, LoadStrategy } from "../src/interfaces/index.js";
-import { PostgresContainer } from "./utils/postgres-container.js";
+import { MAIN_DB_CONFIG } from "./config/database.js";
 import { PostgresHelper } from "./utils/postgres-helper.js";
 
 export interface TestContext {
-  container: PostgresContainer;
   helper: PostgresHelper;
   connectionConfig: ConnectionConfig;
   dbSeedia: DbSeedia;
 }
 
 export function setupE2EHooks(strategy: LoadStrategy = "truncate") {
-  let container: PostgresContainer;
   let helper: PostgresHelper;
   let connectionConfig: ConnectionConfig;
   let dbSeedia: DbSeedia;
 
   beforeAll(async () => {
-    // シングルトンコンテナを使用
-    container = PostgresContainer.getMainInstance();
-    connectionConfig = await container.start();
+    // 共通データベース設定を使用
+    connectionConfig = MAIN_DB_CONFIG;
 
     // PostgreSQL操作用ヘルパーを作成
-    helper = new PostgresHelper(container);
+    helper = new PostgresHelper(connectionConfig);
+    await helper.connect();
 
     // スキーマを1度だけ初期化
     await helper.initializeSchema();
@@ -40,7 +38,9 @@ export function setupE2EHooks(strategy: LoadStrategy = "truncate") {
     if (dbSeedia) {
       await dbSeedia.disconnect();
     }
-    // コンテナは停止しない（他のテストで再利用）
+    if (helper) {
+      await helper.disconnect();
+    }
   });
 
   beforeEach(async () => {
@@ -51,7 +51,6 @@ export function setupE2EHooks(strategy: LoadStrategy = "truncate") {
   });
 
   return () => ({
-    container,
     helper,
     connectionConfig,
     dbSeedia,
