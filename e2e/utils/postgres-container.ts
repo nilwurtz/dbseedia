@@ -45,6 +45,7 @@ export class PostgresContainer {
         POSTGRES_USER: this.username,
         POSTGRES_PASSWORD: this.password,
       })
+      .withReuse()
       .withExposedPorts(5432)
       .withWaitStrategy(
         // Wait for PostgreSQL to be ready

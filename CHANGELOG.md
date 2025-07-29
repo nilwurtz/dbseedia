@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added dual package support for both ESM and CommonJS (#1)
+  - Created separate TypeScript configurations: `tsconfig.esm.json` and `tsconfig.cjs.json`
+  - Build outputs to `dist/esm/` and `dist/cjs/` directories respectively
+  - Updated package.json exports field to support both module systems
+
 ## [0.0.2] - 2025-07-01
 
 ### Fixed

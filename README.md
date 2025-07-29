@@ -229,6 +229,13 @@ npm run typecheck
 npm run lint
 ```
 
+### Rancher Desktop
+For development with Rancher Desktop, you can use the following command to link the Docker socket:
+
+```bash
+sudo ln -s $HOME/.rd/docker.sock /var/run/docker.sock
+```
+
 ## Requirements
 
 - Node.js 20.0.0 or higher
