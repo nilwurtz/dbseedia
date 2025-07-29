@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.3] - 2025-01-29
+
 ### Added
 
 - Added dual package support for both ESM and CommonJS (#1)
@@ -52,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - ESM import issue with papaparse package (fixed in 0.0.2)
 
-[Unreleased]: https://github.com/nilwurtz/dbseedia/compare/v0.0.2...HEAD
+[Unreleased]: https://github.com/nilwurtz/dbseedia/compare/v0.0.3...HEAD
+[0.0.3]: https://github.com/nilwurtz/dbseedia/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/nilwurtz/dbseedia/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/nilwurtz/dbseedia/releases/tag/v0.0.1
