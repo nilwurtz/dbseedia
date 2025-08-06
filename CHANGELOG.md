@@ -7,11 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added wildcard exports pattern (`"./*"`) in package.json to simplify submodule imports
+- Added explicit `./package.json` export for package metadata access
+
 ### Changed
 
 - Updated @biomejs/biome from 2.0.6 to 2.1.2
 - Updated @types/node from ^24.0.8 to ^24.1.0
 - Applied Biome configuration migration for schema compatibility
+- Improved CommonJS dynamic import compatibility with proper exports configuration
 
 ## [0.0.3] - 2025-07-29
 
