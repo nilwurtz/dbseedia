@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added `verbose` option to ConnectionConfig to control PostgreSQL notice logging
+  - When `verbose: true`, PostgreSQL notice messages (like "relation already exists, skipping") are logged to console
+  - When `verbose: false` or unset (default), PostgreSQL notice messages are suppressed for cleaner output
+
 ## [0.0.5] - 2025-08-06
 
 ### Changed

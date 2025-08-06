@@ -23,6 +23,7 @@ export class PostgresHelper {
         username: this.config.username,
         password: this.config.password,
         ssl: this.config.ssl || false,
+        onnotice: this.config.verbose ? console.log : () => {},
       });
     }
   }
@@ -34,7 +35,7 @@ export class PostgresHelper {
     }
   }
 
-  async executeQuery(query: string): Promise<any[]> {
+  async executeQuery(query: string): Promise<unknown[]> {
     if (!this.sql) {
       throw new Error("Not connected to database");
     }

@@ -28,6 +28,7 @@ export class PostgresDbRepository implements DbRepository {
         username: this.config.username,
         password: this.config.password,
         ssl: this.config.ssl || false,
+        onnotice: this.config.verbose ? console.log : () => {},
       });
 
       await this.sql.unsafe("SELECT 1");

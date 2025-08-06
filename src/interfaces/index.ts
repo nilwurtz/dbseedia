@@ -6,6 +6,7 @@ export interface ConnectionConfig {
   username: string;
   password: string;
   ssl?: boolean | object;
+  verbose?: boolean;
 }
 
 export interface DbSeediaConfig {
