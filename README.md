@@ -1,5 +1,8 @@
 # DbSeedia
 
+[![npm version](https://badge.fury.io/js/dbseedia.svg)](https://badge.fury.io/js/dbseedia)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/nilwurtz/dbseedia)](https://github.com/nilwurtz/dbseedia/releases)
+
 Database test data loader library inspired by DBUnit, for PostgreSQL with CSV and TSV support.
 
 ## Features
