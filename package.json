@@ -2,7 +2,6 @@
   "name": "dbseedia",
   "version": "0.0.4",
   "description": "Database test data loader library inspired by DBUnit, for PostgreSQL with CSV and TSV support.",
-  "type": "module",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/esm/index.d.ts",
