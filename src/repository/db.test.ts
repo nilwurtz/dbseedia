@@ -68,6 +68,7 @@ describe("PostgreSQLデータベースリポジトリ", () => {
         username: "test_user",
         password: "test_password",
         ssl: false,
+        onnotice: expect.any(Function),
       });
       expect(mockSql.unsafe).toHaveBeenCalledWith("SELECT 1");
     });
@@ -93,6 +94,50 @@ describe("PostgreSQLデータベースリポジトリ", () => {
           port: 5432,
         }),
       );
+    });
+
+    it("verbose: trueの場合、onnoticeにconsole.logが設定されること", async () => {
+      const verboseConfig = {
+        ...config,
+        verbose: true,
+      };
+      const dbRepository = new PostgresDbRepository(verboseConfig);
+      mockSql.unsafe.mockResolvedValue([{ "?column?": 1 }]);
+
+      await dbRepository.connect();
+
+      expect(mockPostgres).toHaveBeenCalledWith(
+        expect.objectContaining({
+          onnotice: console.log,
+        }),
+      );
+    });
+
+    it("verbose: falseの場合、onnoticeに空関数が設定されること", async () => {
+      const verboseConfig = {
+        ...config,
+        verbose: false,
+      };
+      const dbRepository = new PostgresDbRepository(verboseConfig);
+      mockSql.unsafe.mockResolvedValue([{ "?column?": 1 }]);
+
+      await dbRepository.connect();
+
+      expect(mockPostgres).toHaveBeenCalledWith(
+        expect.objectContaining({
+          onnotice: expect.any(Function),
+        }),
+      );
+      
+      // onnotice関数を取得して呼び出し、console.logが呼ばれないことを確認
+      const callArgs = mockPostgres.mock.calls[0][0];
+      const onnoticeFunc = callArgs.onnotice;
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+      
+      onnoticeFunc('test notice');
+      
+      expect(consoleSpy).not.toHaveBeenCalled();
+      consoleSpy.mockRestore();
     });
   });
 
